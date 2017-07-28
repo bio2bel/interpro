@@ -25,7 +25,6 @@ def read_tree(G, file, option, parent=None, depth=0):
         if dashes >= depth:
             if parent is not None:
                 G.add_edge(parent.split('::')[option], word.split('::')[option])
-                print('0>> {} 1>>{}'.format(parent.split('::')[0], word.split('::')[1]))
             word = read_tree(G, file, option, word, depth + 1)
         else:
             word = read_tree(G, file, option, parent, depth)
@@ -33,7 +32,7 @@ def read_tree(G, file, option, parent=None, depth=0):
 
 def main(file):
     G = nx.DiGraph()
-    opt = 1
+    opt = 1 #1 for name 0 for ID
     try:
         read_tree(G, file, opt, parent=None, depth=0)
     except:
@@ -85,7 +84,6 @@ def make_bel(G, file):
 
 def write_interpro_bel(in_file, file=None):
     G = main(in_file)
-    print(G.edges())
     make_bel(G, file)
 
 
