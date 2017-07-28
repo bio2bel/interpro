@@ -1,7 +1,6 @@
 import os
+
 import networkx as nx
-
-
 from pybel.constants import PYBEL_DATA_DIR
 from pybel.utils import ensure_quotes
 from pybel_tools.document_utils import write_boilerplate
@@ -14,8 +13,9 @@ if not os.path.exists(CHEMBL_DATA_DIR):
 TREE_FILE_PATH = os.path.join(CHEMBL_DATA_DIR, 'ParentChildTreeFile.txt')
 
 
-def read_tree(G, file, parent=None, depth=0):
-    word = next(file).split(':')[0]
+def read_tree(G, file, option, parent=None, depth=0):
+    line = next(file)
+    word = '::'.join(line.split('::')[:2])
     while word:
         dashes = word.count('-') // 2
         word = word.lstrip('-')
@@ -24,24 +24,32 @@ def read_tree(G, file, parent=None, depth=0):
 
         if dashes >= depth:
             if parent is not None:
-                G.add_edge(parent, word)
-            word = read_tree(G, file, word, depth + 1)
+                G.add_edge(parent.split('::')[option], word.split('::')[option])
+                print('0>> {} 1>>{}'.format(parent.split('::')[0], word.split('::')[1]))
+            word = read_tree(G, file, option, word, depth + 1)
         else:
-            word = read_tree(G, file, parent, depth)
+            word = read_tree(G, file, option, parent, depth)
+
 
 def main(file):
     G = nx.DiGraph()
-
+    opt = 1
     try:
-        read_tree(G, file)
+        read_tree(G, file, opt, parent=None, depth=0)
     except:
         pass
-
-    #assert 'IPR002420' in G.edge['IPR000008']
-    #assert 'IPR001840' in G.edge['IPR018081']
-    #assert 'IPR033965' in G.edge['IPR000092']
+    if opt == 0:
+        assert 'IPR002420' in G.edge['IPR000008']
+        assert 'IPR001840' in G.edge['IPR018081']
+        assert 'IPR033965' in G.edge['IPR000092']
+    else:
+        if opt == 1:
+            assert 'Phosphatidylinositol 3-kinase, C2 domain' in G.edge['C2 domain']
+        else:
+            assert opt == 0 or opt == 1
 
     return G
+
 
 def make_bel(G, file):
     """Creates the lines of BEL document that represents the InterPro hierarchy
@@ -51,7 +59,7 @@ def make_bel(G, file):
     :rtype: iter[str]
     """
 
-    #make header stuff
+    # make header stuff
     write_boilerplate(
         document_name='Interpro relations file',
         authors='Aram Grigoryan',
@@ -69,17 +77,18 @@ def make_bel(G, file):
     )
 
     for parent, child in G.edges_iter():
-        print( 'p(INTERPRO:{}) isA p(INTERPRO:{})'.format(
+        print('p(INTERPRO:{}) isA p(INTERPRO:{})'.format(
             ensure_quotes(child),
             ensure_quotes(parent),
         ), file=file)
 
 
-
 def write_interpro_bel(in_file, file=None):
     G = main(in_file)
+    print(G.edges())
     make_bel(G, file)
+
 
 if __name__ == '__main__':
     with open(TREE_FILE_PATH, 'r') as f, open(os.path.join(CHEMBL_DATA_DIR, 'blahblah.bel'), 'w') as f2:
-        write_interpro_bel(f , f2)
+        write_interpro_bel(f, f2)
