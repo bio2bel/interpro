@@ -1,1 +1,2 @@
 pybel_tools
+networkx
