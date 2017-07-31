@@ -1,0 +1,33 @@
+IPR000008::C2 domain::
+--IPR002420::Phosphatidylinositol 3-kinase, C2 domain::
+--IPR014020::Tensin phosphatase, C2 domain::
+--IPR033884::Calpain C2 domain::
+IPR000010::Cystatin domain::
+--IPR025760::Fetuin-A-type cystatin domain::
+--IPR025764::Fetuin-B-type cystatin domain::
+--IPR027358::Kininogen-type cystatin domain::
+IPR000011::Ubiquitin/SUMO-activating enzyme E1::
+--IPR018075::Ubiquitin-activating enzyme E1::
+IPR000014::PAS domain::
+--IPR013655::PAS fold-3::
+--IPR013656::PAS fold-4::
+--IPR013767::PAS fold::
+IPR000020::Anaphylatoxin/fibulin::
+--IPR018081::Anaphylatoxin, complement system::
+----IPR001840::Anaphylatoxin, complement system domain::
+IPR000026::Guanine-specific ribonuclease N1/T1/U2::
+--IPR001887::Barnase::
+--IPR004025::Fungal ribotoxin::
+IPR000031::PurE domain::
+--IPR033626::Class II PurE::
+--IPR033747::Class I PurE::
+IPR000040::Acute myeloid leukemia 1 protein (AML1)/Runt::
+--IPR016554::Runt-related transcription factor RUNX::
+IPR000043::Adenosylhomocysteinase-like::
+--IPR034373::Adenosylhomocysteinase::
+IPR000053::Thymidine/pyrimidine-nucleoside phosphorylase::
+--IPR013466::Thymidine phosphorylase/AMP phosphorylase::
+----IPR017713::AMP phosphorylase::
+----IPR028579::Putative thymidine phosphorylase::
+--IPR018090::Pyrimidine-nucleoside phosphorylase, bacterial/eukaryotic::
+----IPR013465::Thymidine phosphorylase::
