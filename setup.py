@@ -11,6 +11,8 @@ META_PATH = os.path.join('src', 'bio2bel_interpro', '__init__.py')
 INSTALL_REQUIRES = [
     'pybel_tools',
     'networkx',
+    'pandas',
+    'fuckit',
 ]
 ENTRY_POINTS = {
     'console_scripts': [

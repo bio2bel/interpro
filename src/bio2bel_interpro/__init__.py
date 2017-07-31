@@ -1,11 +1,14 @@
 # -*- coding: utf-8 -*-
 
+from . import run
 from . import tree
+from .run import *
+from .tree import *
 
 __version__ = '0.1.1-dev'
 
 __title__ = 'bio2bel_interpro'
-__description__ = "A package for converting Interpro to BEL"
+__description__ = "A package for converting InterPro to BEL"
 __url__ = 'https://github.com/bio2bel/interpro'
 
 __author__ = 'Charles Tapley Hoyt'

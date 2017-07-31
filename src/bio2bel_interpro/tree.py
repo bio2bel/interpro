@@ -2,6 +2,7 @@
 
 import os
 
+import fuckit
 import networkx as nx
 
 from pybel.constants import PYBEL_DATA_DIR
@@ -84,7 +85,9 @@ def parse_interpro_hierarchy(file, opt=1):
     assert opt in {0, 1}
 
     graph = nx.DiGraph()
-    populate_tree(graph, file, opt, parent=None, depth=0)
+
+    with fuckit:
+        populate_tree(graph, file, opt, parent=None, depth=0)
 
     """
     if opt == 0:
@@ -97,9 +100,9 @@ def parse_interpro_hierarchy(file, opt=1):
 
 
 def write_interpro_hierarchy_boilerplate(file=None):
-    """
+    """Writes the BEL document header to the file
 
-    :param file file:
+    :param file file: A writeable file or file like. Defaults to stdout
     """
     write_boilerplate(
         document_name='Interpro relations file',
@@ -122,6 +125,7 @@ def write_interpro_hierchy_body(graph, file=None):
     """Creates the lines of BEL document that represents the InterPro hierarchy
 
     :param networkx.DiGraph graph: A graph representing the InterPro hierarchy from :func:`main`
+    :param file file: A writeable file or file-like. Defaults to stdout.
     :return: An iterator over the lines of a BEL document
     :rtype: iter[str]
     """

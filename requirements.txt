@@ -1,2 +1,4 @@
 pybel_tools
 networkx
+pandas
+fuckit

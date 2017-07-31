@@ -11,8 +11,20 @@ entries = 'ftp://ftp.ebi.ac.uk/pub/databases/interpro/entry.list'
 hierarchy = 'ftp://ftp.ebi.ac.uk/pub/databases/interpro/ParentChildTreeFile.txt'
 
 
+def get_data():
+    """Downloads the entry list into a pandas DataFrame
+
+    :rtype: pandas.DataFrame
+    """
+    return pd.read_csv(entries, sep='\t')
+
+
 def get_names():
-    entries_df = pd.read_csv(entries, sep='\t')
+    """Downloads and extracts the InterPro name list
+
+    :rtype: pandas.DataFrame
+    """
+    entries_df = get_data()
     return entries_df['ENTRY_NAME']
 
 
