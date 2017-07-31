@@ -10,47 +10,47 @@ from pybel_tools.document_utils import write_boilerplate
 from pybel_tools.resources import get_latest_arty_namespace
 
 INTERPRO_DATA_DIR = os.path.join(PYBEL_DATA_DIR, 'bio2bel', 'interpro')
+
 if not os.path.exists(INTERPRO_DATA_DIR):
     os.makedirs(INTERPRO_DATA_DIR)
 
 TREE_FILE_PATH = os.path.join(INTERPRO_DATA_DIR, 'ParentChildTreeFile.txt')
 
 
-def read_tree(graph, file, option, parent=None, depth=0):
-    """
+def populate_tree(graph, file, option, parent=None, depth=0):
+    """Populates the graph with
 
     :param graph:
     :param file:
     :param option:
     :param parent:
     :param depth:
-    :return:
     """
     line = file.readline()
     word = '::'.join(line.split('::')[:2])
     dashes = word.split('::')[0].count('-') // 2
     if depth == 0:
         parent = word[2::]
-        read_tree(graph, file, option, parent, depth + 1)
+        populate_tree(graph, file, option, parent, depth + 1)
 
     while word:
         if dashes == depth:
 
-            word = word[2*dashes::]
+            word = word[2 * dashes::]
 
             graph.add_edge(parent.split('::')[option], word.split('::')[option])
-            #print(parent)
-            read_tree(graph, file, option, parent, depth)
+            # print(parent)
+            populate_tree(graph, file, option, parent, depth)
         elif dashes < depth:
 
-            #word = word[2*dashes::]
-            read_tree(graph, file, option,  word, depth)
+            # word = word[2*dashes::]
+            populate_tree(graph, file, option, word, depth)
         elif dashes > depth:
-            word = word[2*dashes::]
+            word = word[2 * dashes::]
 
             graph.add_edge(list(graph.edge[parent.split('::')[option]].keys())[-1], word.split('::')[option])
 
-            read_tree(graph, file, option,  parent, depth)
+            populate_tree(graph, file, option, parent, depth)
 
     """while word:
         word = word.lstrip('-')
@@ -69,61 +69,45 @@ def read_tree(graph, file, option, parent=None, depth=0):
             word = read_tree(graph, file, option, word, depth)"""
 
 
-def main(file, opt=1):
-    """
+def parse_interpro_hierarchy(file, opt=1):
+    """Parse the InterPro entity relationship tree into a directional graph, where edges from source to
+    target signify "hasChild"
 
-    :param file:
-    :param opt:
-    :return:
+    :param file file: A readable file or file-like over the lines of the InterPro entity relationship tree.
+    :param int opt: 1 for InterPro names and 0 for InterPro identifiers
     :rtype: networkx.DiGraph
+
+    .. seealso::
+
+        The entity relation tree can be downloaded here: ftp://ftp.ebi.ac.uk/pub/databases/interpro/ParentChildTreeFile.txt
     """
     assert opt in {0, 1}
 
     graph = nx.DiGraph()
-    try:
-        read_tree(graph, file, opt, parent=None, depth=0)
-    except:
-        pass
+    populate_tree(graph, file, opt, parent=None, depth=0)
+
     """
     if opt == 0:
         assert 'IPR002420' == list(graph.edge['IPR000008'].keys())[0]
         assert 'IPR001840' == list(graph.edge['IPR018081'].keys())[0]
         assert 'IPR014119' == list(graph.edge['IPR000092'].keys())[0]
-    else:
-        pass
-        #assert 'Calpain C2 domain' in list(graph.edge['C2 domain'].keys())[1]
-
-        #assert 'Histamine H1 receptor' in list(graph.edge['G protein-coupled receptor, rhodopsin-like'].keys())[0]
-        #assert not graph.edge['Histamine H1 receptor']
-
-        #assert 'Dopamine receptor family' in list(graph.edge['G protein-coupled receptor, rhodopsin-like'].keys())[0]
-        #assert 'Dopamine D1 receptor, C2 domain' in list(graph.edge['Dopamine receptor family'].keys())[0]
-        #assert not graph.edge['Dopamine D1 receptor, C2 domain']
-        #assert 'Dopamine D2 receptor, C2 domain' in list(graph.edge['Dopamine receptor family'].keys())[0]
-        #assert 'Dopamine D3 receptor, C2 domain' in list(graph.edge['Dopamine receptor family'].keys())[0]
-        #assert 'Dopamine D4 receptor, C2 domain' in list(graph.edge['Dopamine receptor family'].keys())[0]
-        #assert 'Dopamine D5 receptor, C2 domain' in list(graph.edge['Dopamine receptor family'].keys())[0]
-        #assert not graph.edge['Dopamine D5 receptor, C2 domain']"""
+    """
 
     return graph
 
 
-def make_bel(graph, file):
-    """Creates the lines of BEL document that represents the InterPro hierarchy
-
-    :param networkx.DiGraph graph: A graph representing the InterPro hierarchy from :func:`main`
-    :return: An iterator over the lines of a BEL document
-    :rtype: iter[str]
+def write_interpro_hierarchy_boilerplate(file=None):
     """
 
-    # make header stuff
+    :param file file:
+    """
     write_boilerplate(
         document_name='Interpro relations file',
-        authors='Aram Grigoryan',
+        authors='Aram Grigoryan and Charles Tapley Hoyt',
         contact='aram.grigoryan@scai.fraunhofer.de',
         licenses='Creative Commons by 4.0',
         copyright='Copyright (c) 2017 Aram Grigoryan. All Rights Reserved.',
-        description="""This BEL document represents relations from interpro parent child tree file""",
+        description="""This BEL document represents relations from InterPro entity relationship tree""",
         namespace_dict={
             'INTERPRO': get_latest_arty_namespace('interpro'),
         },
@@ -133,6 +117,16 @@ def make_bel(graph, file):
         file=file
     )
 
+
+def write_interpro_hierchy_body(graph, file=None):
+    """Creates the lines of BEL document that represents the InterPro hierarchy
+
+    :param networkx.DiGraph graph: A graph representing the InterPro hierarchy from :func:`main`
+    :return: An iterator over the lines of a BEL document
+    :rtype: iter[str]
+    """
+    write_interpro_hierarchy_boilerplate(file)
+
     for parent, child in graph.edges_iter():
         print('p(INTERPRO:{}) isA p(INTERPRO:{})'.format(
             ensure_quotes(child),
@@ -140,17 +134,16 @@ def make_bel(graph, file):
         ), file=file)
 
 
-def write_interpro_bel(in_file, file=None):
+def write_interpro_hierarchy(in_file, file=None):
     """
 
     :param file in_file:
     :param file file:
-    :return:
     """
-    G = main(in_file)
-    make_bel(G, file)
+    graph = parse_interpro_hierarchy(in_file)
+    write_interpro_hierchy_body(graph, file)
 
 
 if __name__ == '__main__':
     with open(TREE_FILE_PATH, 'r') as f, open(os.path.join(INTERPRO_DATA_DIR, 'interpro_hierarchy.bel'), 'w') as f2:
-        write_interpro_bel(f, f2)
+        write_interpro_hierarchy(f, f2)
