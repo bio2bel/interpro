@@ -53,21 +53,6 @@ def populate_tree(graph, file, option, parent=None, depth=0):
 
             populate_tree(graph, file, option, parent, depth)
 
-    """while word:
-        word = word.lstrip('-')
-        if dashes < depth:
-            parent = None
-            word = read_tree(graph, file, option, word, depth)
-            #continue
-
-        if parent is not None:
-            if dashes >= depth:
-                graph.add_edge(parent.split('::')[option], word.split('::')[option])
-            word = read_tree(graph, file, option, parent, depth + 1)
-
-        else:
-            print('hoho')
-            word = read_tree(graph, file, option, word, depth)"""
 
 
 def parse_interpro_hierarchy(file, opt=1):
