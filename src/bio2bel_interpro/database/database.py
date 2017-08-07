@@ -112,3 +112,6 @@ class Manager(object):
         for parent, child in graph.edges_iter():
             id_model[parent].children.append(id_model[child])
         self.session.commit()
+
+if __name__ == '__main__':
+    write_db()

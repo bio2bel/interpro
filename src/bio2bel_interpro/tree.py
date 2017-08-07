@@ -16,9 +16,12 @@ INTERPRO_DATA_DIR = os.path.join(PYBEL_DATA_DIR, 'bio2bel', 'interpro')
 if not os.path.exists(INTERPRO_DATA_DIR):
     os.makedirs(INTERPRO_DATA_DIR)
 
+def download_tree_file():
+    urllib.request.urlretrieve(HIERARCHY_FILE_URL, TREE_FILE_PATH)
 TREE_FILE_PATH = os.path.join(INTERPRO_DATA_DIR, 'ParentChildTreeFile.txt')
-
 HIERARCHY_FILE_URL = 'ftp://ftp.ebi.ac.uk/pub/databases/interpro/ParentChildTreeFile.txt'
+if not os.path.isfile(TREE_FILE_PATH):
+    download_tree_file()
 
 def populate_tree(graph, file, option, parent=None, depth=0):
     """Populates the graph with
@@ -77,8 +80,6 @@ def parse_interpro_hierarchy(file, opt=1):
 
     return graph
 
-def download_tree_file():
-    urllib.request.urlretrieve(HIERARCHY_FILE_URL, TREE_FILE_PATH)
 
 def get_graph():
     """
@@ -141,14 +142,10 @@ def write_interpro_hierarchy(in_file, file=None):
     :param file in_file:
     :param file file:
     """
-    if not os.path.isfile(TREE_FILE_PATH):
-        download_tree_file()
     graph = parse_interpro_hierarchy(in_file)
     write_interpro_hierchy_body(graph, file)
 
 
 if __name__ == '__main__':
-    if not os.path.isfile(TREE_FILE_PATH):
-        download_tree_file()
     with open(TREE_FILE_PATH, 'r') as f, open(os.path.join(INTERPRO_DATA_DIR, 'interpro_hierarchy.bel'), 'w') as f2:
         write_interpro_hierarchy(f, f2)
