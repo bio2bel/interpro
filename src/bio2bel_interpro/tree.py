@@ -4,7 +4,6 @@ import os
 
 import fuckit
 import networkx as nx
-
 from pybel.constants import PYBEL_DATA_DIR
 from pybel.utils import ensure_quotes
 from pybel_tools.document_utils import write_boilerplate
@@ -54,7 +53,6 @@ def populate_tree(graph, file, option, parent=None, depth=0):
             populate_tree(graph, file, option, parent, depth)
 
 
-
 def parse_interpro_hierarchy(file, opt=1):
     """Parse the InterPro entity relationship tree into a directional graph, where edges from source to
     target signify "hasChild"
@@ -74,14 +72,19 @@ def parse_interpro_hierarchy(file, opt=1):
     with fuckit:
         populate_tree(graph, file, opt, parent=None, depth=0)
 
-    """
-    if opt == 0:
-        assert 'IPR002420' == list(graph.edge['IPR000008'].keys())[0]
-        assert 'IPR001840' == list(graph.edge['IPR018081'].keys())[0]
-        assert 'IPR014119' == list(graph.edge['IPR000092'].keys())[0]
+    return graph
+
+
+def get_graph():
     """
 
-    return graph
+    this function downlaods the data and puts it into the right place and then calls parse_interpro_hierarchy()
+    returns the result of that function
+
+    :return:
+    :rtype: networkx.DiGraph
+    """
+    raise NotImplemented
 
 
 def write_interpro_hierarchy_boilerplate(file=None):
