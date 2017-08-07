@@ -51,6 +51,8 @@ class Manager(object):
         self.engine = create_engine(self.connection, echo=echo)
         self.sessionmaker = sessionmaker(bind=self.engine, autoflush=False, expire_on_commit=False)
         self.session = scoped_session(self.sessionmaker)
+        self.create_tables()
+
 
     def create_tables(self, checkfirst=True):
         """creates all tables from models in your database
@@ -104,7 +106,7 @@ class Manager(object):
         for _, id, type, name in df[['ENTRY_AC', 'ENTRY_TYPE', 'ENTRY_NAME']].itertuples():
             m = models.Interpro(accession=id, type=type, name=name)
             self.session.add(m)
-            id_model[id] = m
+            id_model[name] = m
 
         graph = tree.get_graph()
         for parent, child in graph.edges_iter():

@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
 import os
+import urllib.request
+
 
 import fuckit
 import networkx as nx
@@ -16,6 +18,7 @@ if not os.path.exists(INTERPRO_DATA_DIR):
 
 TREE_FILE_PATH = os.path.join(INTERPRO_DATA_DIR, 'ParentChildTreeFile.txt')
 
+HIERARCHY_FILE_URL = 'ftp://ftp.ebi.ac.uk/pub/databases/interpro/ParentChildTreeFile.txt'
 
 def populate_tree(graph, file, option, parent=None, depth=0):
     """Populates the graph with
@@ -74,6 +77,8 @@ def parse_interpro_hierarchy(file, opt=1):
 
     return graph
 
+def download_tree_file():
+    urllib.request.urlretrieve(HIERARCHY_FILE_URL, TREE_FILE_PATH)
 
 def get_graph():
     """
@@ -84,7 +89,9 @@ def get_graph():
     :return:
     :rtype: networkx.DiGraph
     """
-    raise NotImplemented
+    with open(TREE_FILE_PATH, 'r') as f:
+        graph = parse_interpro_hierarchy(f)
+    return graph
 
 
 def write_interpro_hierarchy_boilerplate(file=None):
@@ -137,5 +144,6 @@ def write_interpro_hierarchy(in_file, file=None):
 
 
 if __name__ == '__main__':
+    download_tree_file()
     with open(TREE_FILE_PATH, 'r') as f, open(os.path.join(INTERPRO_DATA_DIR, 'interpro_hierarchy.bel'), 'w') as f2:
         write_interpro_hierarchy(f, f2)
