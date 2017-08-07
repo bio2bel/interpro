@@ -9,8 +9,8 @@ import sys
 
 import click
 
-from .run import deploy_to_arty, write_belns
-
+from bio2bel_interpro.run import deploy_to_arty, write_belns
+from bio2bel_interpro.database.database import Manager
 
 @click.group()
 def main():
@@ -30,6 +30,11 @@ def write(output):
     """Writes BEL namespace to standard out"""
     write_belns(output)
 
+@main.command()
+def wdb():
+    """Creates DataBase file"""
+    m = Manager()
+    m.write_db()
 
 if __name__ == '__main__':
     main()
