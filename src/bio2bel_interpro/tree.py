@@ -139,11 +139,12 @@ def write_interpro_hierarchy(in_file, file=None):
     :param file in_file:
     :param file file:
     """
+    download_tree_file()
     graph = parse_interpro_hierarchy(in_file)
     write_interpro_hierchy_body(graph, file)
 
 
 if __name__ == '__main__':
-    download_tree_file()
+
     with open(TREE_FILE_PATH, 'r') as f, open(os.path.join(INTERPRO_DATA_DIR, 'interpro_hierarchy.bel'), 'w') as f2:
         write_interpro_hierarchy(f, f2)
