@@ -147,5 +147,6 @@ def write_interpro_hierarchy(in_file, file=None):
 
 
 if __name__ == '__main__':
+
     with open(TREE_FILE_PATH, 'r') as f, open(os.path.join(INTERPRO_DATA_DIR, 'interpro_hierarchy.bel'), 'w') as f2:
         write_interpro_hierarchy(f, f2)
