@@ -1,27 +1,24 @@
 # -*- coding: utf-8 -*-
 
 import os
-import urllib.request
-
+from urllib.request import urlretrieve
 
 import fuckit
 import networkx as nx
-from pybel.constants import PYBEL_DATA_DIR
+
 from pybel.utils import ensure_quotes
 from pybel_tools.document_utils import write_boilerplate
 from pybel_tools.resources import get_latest_arty_namespace
+from .constants import INTERPRO_DATA_DIR, INTERPRO_TREE_URL
 
-INTERPRO_DATA_DIR = os.path.join(PYBEL_DATA_DIR, 'bio2bel', 'interpro')
-
-if not os.path.exists(INTERPRO_DATA_DIR):
-    os.makedirs(INTERPRO_DATA_DIR)
-
-def download_tree_file():
-    urllib.request.urlretrieve(HIERARCHY_FILE_URL, TREE_FILE_PATH)
 TREE_FILE_PATH = os.path.join(INTERPRO_DATA_DIR, 'ParentChildTreeFile.txt')
-HIERARCHY_FILE_URL = 'ftp://ftp.ebi.ac.uk/pub/databases/interpro/ParentChildTreeFile.txt'
-if not os.path.isfile(TREE_FILE_PATH):
-    download_tree_file()
+
+
+def ensure_tree_file(force_download=False):
+    """Downloads the InterPro tree file to the data directory if it doesn't already exist"""
+    if not os.path.exists(TREE_FILE_PATH) or force_download:
+        urlretrieve(INTERPRO_TREE_URL, TREE_FILE_PATH)
+
 
 def populate_tree(graph, file, option, parent=None, depth=0):
     """Populates the graph with
@@ -59,7 +56,7 @@ def populate_tree(graph, file, option, parent=None, depth=0):
             populate_tree(graph, file, option, parent, depth)
 
 
-def parse_interpro_hierarchy(file, opt=1):
+def parse_interpro_tree(file, opt=1):
     """Parse the InterPro entity relationship tree into a directional graph, where edges from source to
     target signify "hasChild"
 
@@ -81,23 +78,21 @@ def parse_interpro_hierarchy(file, opt=1):
     return graph
 
 
-def get_graph():
-    """
-
-    this function downlaods the data and puts it into the right place and then calls parse_interpro_hierarchy()
+def get_graph(force_download=False):
+    """Downloads the data and puts it into the right place and then calls :func:`parse_interpro_tree`
     returns the result of that function
 
-    :return:
     :rtype: networkx.DiGraph
     """
-    if not os.path.exists(TREE_FILE_PATH):
-        download_tree_file()
+    ensure_tree_file(force_download=force_download)
+
     with open(TREE_FILE_PATH, 'r') as f:
-        graph = parse_interpro_hierarchy(f)
+        graph = parse_interpro_tree(f)
+
     return graph
 
 
-def write_interpro_hierarchy_boilerplate(file=None):
+def write_interpro_tree_boilerplate(file=None):
     """Writes the BEL document header to the file
 
     :param file file: A writeable file or file like. Defaults to stdout
@@ -119,34 +114,27 @@ def write_interpro_hierarchy_boilerplate(file=None):
     )
 
 
-def write_interpro_hierchy_body(graph, file=None):
-    """Creates the lines of BEL document that represents the InterPro hierarchy
+def write_interpro_tree_body(graph, file):
+    """Creates the lines of BEL document that represents the InterPro tree
 
-    :param networkx.DiGraph graph: A graph representing the InterPro hierarchy from :func:`main`
+    :param networkx.DiGraph graph: A graph representing the InterPro tree from :func:`main`
     :param file file: A writeable file or file-like. Defaults to stdout.
-    :return: An iterator over the lines of a BEL document
-    :rtype: iter[str]
     """
-    write_interpro_hierarchy_boilerplate(file)
-
     for parent, child in graph.edges_iter():
-        print('p(INTERPRO:{}) isA p(INTERPRO:{})'.format(
-            ensure_quotes(child),
-            ensure_quotes(parent),
-        ), file=file)
+        print(
+            'p(INTERPRO:{}) isA p(INTERPRO:{})'.format(
+                ensure_quotes(child),
+                ensure_quotes(parent),
+            ),
+            file=file
+        )
 
 
-def write_interpro_hierarchy(in_file, file=None):
+def write_interpro_tree(graph, file=None):
+    """Creates the entire BEL document representing the InterPro tree
+
+    :param networkx.DiGraph graph: A graph representing the InterPro tree from :func:`main`
+    :param file file: A writeable file or file-like. Defaults to stdout.
     """
-
-    :param file in_file:
-    :param file file:
-    """
-    graph = parse_interpro_hierarchy(in_file)
-    write_interpro_hierchy_body(graph, file)
-
-
-if __name__ == '__main__':
-
-    with open(TREE_FILE_PATH, 'r') as f, open(os.path.join(INTERPRO_DATA_DIR, 'interpro_hierarchy.bel'), 'w') as f2:
-        write_interpro_hierarchy(f, f2)
+    write_interpro_tree_boilerplate(file)
+    write_interpro_tree_body(graph, file)

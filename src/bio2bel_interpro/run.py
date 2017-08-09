@@ -5,10 +5,9 @@ import pandas as pd
 from pybel.constants import NAMESPACE_DOMAIN_GENE
 from pybel_tools.definition_utils import write_namespace
 from pybel_tools.resources import deploy_namespace, get_today_arty_namespace
+from .constants import INTERPRO_ENTRIES_URL
 
-NAMESPACE_MODULE_NAME = 'interpro'
-entries = 'ftp://ftp.ebi.ac.uk/pub/databases/interpro/entry.list'
-hierarchy = 'ftp://ftp.ebi.ac.uk/pub/databases/interpro/ParentChildTreeFile.txt'
+MODULE_NAME = 'interpro'
 
 
 def get_data():
@@ -16,7 +15,7 @@ def get_data():
 
     :rtype: pandas.DataFrame
     """
-    return pd.read_csv(entries, sep='\t')
+    return pd.read_csv(INTERPRO_ENTRIES_URL, sep='\t')
 
 
 def get_names():
@@ -48,12 +47,12 @@ def write_belns(file, values=None):
 def deploy_to_arty():
     """Gets the data and writes BEL namespace file to artifactory"""
 
-    file_name = get_today_arty_namespace(NAMESPACE_MODULE_NAME)
+    file_name = get_today_arty_namespace(MODULE_NAME)
 
     with open(file_name, 'w') as file:
         write_belns(file)
 
-    deploy_namespace(file_name, NAMESPACE_MODULE_NAME)
+    deploy_namespace(file_name, MODULE_NAME)
 
 
 if __name__ == '__main__':

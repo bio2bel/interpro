@@ -3,7 +3,7 @@
 import os
 import unittest
 
-from bio2bel_interpro.tree import parse_interpro_hierarchy
+from bio2bel_interpro.tree import parse_interpro_tree
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
 test_path = os.path.join(dir_path, 'test.txt')
@@ -12,7 +12,7 @@ test_path = os.path.join(dir_path, 'test.txt')
 class TestTree(unittest.TestCase):
     def setUp(self):
         with open(test_path) as f:
-            self.graph = parse_interpro_hierarchy(f)
+            self.graph = parse_interpro_tree(f)
 
     def test_names_in_graph(self):
         """All names are nodes in graph"""
