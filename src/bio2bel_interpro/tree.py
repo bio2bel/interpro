@@ -15,7 +15,10 @@ TREE_FILE_PATH = os.path.join(INTERPRO_DATA_DIR, 'ParentChildTreeFile.txt')
 
 
 def ensure_tree_file(force_download=False):
-    """Downloads the InterPro tree file to the data directory if it doesn't already exist"""
+    """Downloads the InterPro tree file to the data directory if it doesn't already exist
+
+    :param bool force_download: Should the data be re-downloaded?
+    """
     if not os.path.exists(TREE_FILE_PATH) or force_download:
         urlretrieve(INTERPRO_TREE_URL, TREE_FILE_PATH)
 
@@ -130,11 +133,12 @@ def write_interpro_tree_body(graph, file):
         )
 
 
-def write_interpro_tree(graph, file=None):
+def write_interpro_tree(file=None, force_download=False):
     """Creates the entire BEL document representing the InterPro tree
 
-    :param networkx.DiGraph graph: A graph representing the InterPro tree from :func:`main`
     :param file file: A writeable file or file-like. Defaults to stdout.
+    :param bool force_download: Should the data be re-downloaded?
     """
+    graph = get_graph(force_download=force_download)
     write_interpro_tree_boilerplate(file)
     write_interpro_tree_body(graph, file)

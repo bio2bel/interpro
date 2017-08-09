@@ -9,8 +9,9 @@ import sys
 
 import click
 
-from bio2bel_interpro.database import Manager
-from bio2bel_interpro.run import deploy_to_arty, write_belns
+from .database import Manager
+from .run import deploy_to_arty, write_belns
+from .tree import write_interpro_tree
 
 
 @click.group()
@@ -21,22 +22,30 @@ def main():
 
 @main.command()
 def arty():
-    """Deploy to artifactory"""
+    """Deploy to ArtiFactory"""
     deploy_to_arty()
 
 
 @main.command()
 @click.option('-o', '--output', type=click.File('w'), default=sys.stdout)
 def write(output):
-    """Writes BEL namespace to standard out"""
+    """Writes BEL namespace"""
     write_belns(output)
 
 
 @main.command()
-def wdb():
-    """Creates DataBase file"""
-    m = Manager()
-    m.populate()
+@click.option('-o', '--output', type=click.File('w'), default=sys.stdout)
+def write_tree(output):
+    """Writes the BEL tree"""
+    write_interpro_tree(output)
+
+
+@main.command()
+@click.option('-c', '--connection', help='Connection to cache. Defaults to {}'.format(Manager.get_connection_string()))
+def populate(connection):
+    """Populates the database"""
+    manager = Manager(connection=connection)
+    manager.populate()
 
 
 if __name__ == '__main__':
