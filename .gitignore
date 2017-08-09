@@ -104,3 +104,5 @@ ENV/
 scratch/
 scratch/*
 
+
+scratch/scratch.py
