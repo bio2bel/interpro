@@ -136,6 +136,8 @@ def write_interpro_tree_body(graph, file):
             file=file
         )
 
+    print('UNSET ALL', file=file)
+
 
 def write_interpro_tree(file=None, force_download=False):
     """Creates the entire BEL document representing the InterPro tree
