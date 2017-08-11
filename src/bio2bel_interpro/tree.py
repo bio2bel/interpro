@@ -8,7 +8,7 @@ import networkx as nx
 
 from pybel.utils import ensure_quotes
 from pybel_tools.document_utils import write_boilerplate
-from pybel_tools.resources import get_latest_arty_namespace
+from pybel_tools.resources import get_latest_arty_namespace, CONFIDENCE
 from .constants import INTERPRO_DATA_DIR, INTERPRO_TREE_URL
 
 TREE_FILE_PATH = os.path.join(INTERPRO_DATA_DIR, 'ParentChildTreeFile.txt')
@@ -101,7 +101,7 @@ def write_interpro_tree_boilerplate(file=None):
     :param file file: A writeable file or file like. Defaults to stdout
     """
     write_boilerplate(
-        document_name='Interpro relations file',
+        document_name='InterPro Tree',
         authors='Aram Grigoryan and Charles Tapley Hoyt',
         contact='aram.grigoryan@scai.fraunhofer.de',
         licenses='Creative Commons by 4.0',
@@ -111,7 +111,7 @@ def write_interpro_tree_boilerplate(file=None):
             'INTERPRO': get_latest_arty_namespace('interpro'),
         },
         namespace_patterns={},
-        annotations_dict={},
+        annotations_dict={'Confidence': CONFIDENCE},
         annotations_patterns={},
         file=file
     )
@@ -123,6 +123,10 @@ def write_interpro_tree_body(graph, file):
     :param networkx.DiGraph graph: A graph representing the InterPro tree from :func:`main`
     :param file file: A writeable file or file-like. Defaults to stdout.
     """
+    print('SET Citation = {"PubMed", "27899635"}', file=file)
+    print('SET Evidence = "InterPro Definitions"', file=file)
+    print('SET Confidence = "Axiomatic"', file=file)
+
     for parent, child in graph.edges_iter():
         print(
             'p(INTERPRO:{}) isA p(INTERPRO:{})'.format(
