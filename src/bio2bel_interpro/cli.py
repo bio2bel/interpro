@@ -25,7 +25,7 @@ def main():
 @click.option('--force', is_flag=True, help="Force knowledge to be uploaded even if not new namespace")
 def deploy(force):
     """Deploy to ArtiFactory"""
-    deploy_to_arty(force)
+    deploy_to_arty(not force)
 
 
 @main.command()
