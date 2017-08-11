@@ -10,20 +10,22 @@ import sys
 import click
 
 from .database import Manager
-from .run import deploy_to_arty, write_belns
+from .deploy import deploy_to_arty
+from .run import write_belns
 from .tree import write_interpro_tree
 
 
 @click.group()
 def main():
-    """Output gene family hierarchy as BEL script and BEL namespace"""
+    """Output InterPro hierarchy as BEL script and BEL namespace"""
     logging.basicConfig(level=10, format="%(asctime)s - %(levelname)s - %(message)s")
 
 
 @main.command()
-def arty():
+@click.option('--force', is_flag=True, help="Force knowledge to be uploaded even if not new namespace")
+def deploy(force):
     """Deploy to ArtiFactory"""
-    deploy_to_arty()
+    deploy_to_arty(force)
 
 
 @main.command()

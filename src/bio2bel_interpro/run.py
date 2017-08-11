@@ -4,7 +4,6 @@ import pandas as pd
 
 from pybel.constants import NAMESPACE_DOMAIN_GENE
 from pybel_tools.definition_utils import write_namespace
-from pybel_tools.resources import deploy_namespace, get_today_arty_namespace
 from .constants import INTERPRO_ENTRIES_URL
 
 MODULE_NAME = 'interpro'
@@ -42,18 +41,3 @@ def write_belns(file, values=None):
         functions='P',
         file=file
     )
-
-
-def deploy_to_arty():
-    """Gets the data and writes BEL namespace file to artifactory"""
-
-    file_name = get_today_arty_namespace(MODULE_NAME)
-
-    with open(file_name, 'w') as file:
-        write_belns(file)
-
-    deploy_namespace(file_name, MODULE_NAME)
-
-
-if __name__ == '__main__':
-    deploy_to_arty()
