@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-"""Interpro database model"""
+"""InterPro database model"""
 
 from sqlalchemy import Column, String, Integer, Table, ForeignKey
 from sqlalchemy.ext.declarative import declarative_base

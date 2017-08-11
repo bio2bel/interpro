@@ -2,13 +2,10 @@
 
 import os
 
-#: Data source for Interpro entries
+#: Data source for InterPro entries
 INTERPRO_ENTRIES_URL = 'ftp://ftp.ebi.ac.uk/pub/databases/interpro/entry.list'
 entries = 'ftp://ftp.ebi.ac.uk/pub/databases/interpro/entry.list'
 INTERPRO_TREE_URL = 'ftp://ftp.ebi.ac.uk/pub/databases/interpro/ParentChildTreeFile.txt'
-
-
-
 
 INTERPRO_DATA_DIR = os.path.join(os.path.expanduser('~'), '.pyinterpro')
 
