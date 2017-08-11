@@ -123,7 +123,7 @@ def write_interpro_tree_body(graph, file):
     :param networkx.DiGraph graph: A graph representing the InterPro tree from :func:`main`
     :param file file: A writeable file or file-like. Defaults to stdout.
     """
-    print('SET Citation = {"PubMed", "27899635"}', file=file)
+    print('SET Citation = {"PubMed","InterPro","27899635"}', file=file)
     print('SET Evidence = "InterPro Definitions"', file=file)
     print('SET Confidence = "Axiomatic"', file=file)
 
