@@ -17,7 +17,7 @@ from .tree import write_interpro_tree
 
 @click.group()
 def main():
-    """Output InterPro hierarchy as BEL script and BEL namespace"""
+    """InterPro to BEL"""
     logging.basicConfig(level=10, format="%(asctime)s - %(levelname)s - %(message)s")
 
 
