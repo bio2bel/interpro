@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from . import cli
 from . import run
 from . import tree
 from .run import *
