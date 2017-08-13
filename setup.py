@@ -15,6 +15,9 @@ INSTALL_REQUIRES = [
     'fuckit',
 ]
 ENTRY_POINTS = {
+    'bio2bel': [
+        'interpro = bio2bel_interpro',
+    ],
     'console_scripts': [
         'bio2bel_interpro = bio2bel_interpro.cli:main',
     ]
