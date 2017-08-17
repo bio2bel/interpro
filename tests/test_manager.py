@@ -13,7 +13,7 @@ log = logging.getLogger(__name__)
 
 class TestManager(unittest.TestCase):
     def setUp(self):
-        """Creates a manager with a temporary database and imports the database"""
+        """Creates a manager with a temporary database and imports the database."""
         self.manager = Manager()
 
         self.fd, self.path = tempfile.mkstemp()

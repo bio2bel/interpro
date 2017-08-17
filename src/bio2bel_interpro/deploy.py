@@ -12,7 +12,7 @@ KNOWLEDGE_MODULE_NAME = 'interpro-hierarchy'
 
 
 def deploy_to_arty(quit_fail_redeploy=True):
-    """Gets the data and writes BEL namespace file to artifactory"""
+    """Gets the data, writes BEL namespace, and writes BEL knowledge to Artifactory"""
 
     file_name = get_today_arty_namespace(MODULE_NAME)
 
