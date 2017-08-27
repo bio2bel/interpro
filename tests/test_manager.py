@@ -14,11 +14,11 @@ log = logging.getLogger(__name__)
 class TestManager(unittest.TestCase):
     def setUp(self):
         """Creates a manager with a temporary database and imports the database."""
-        self.manager = Manager()
-
         self.fd, self.path = tempfile.mkstemp()
         self.connection = 'sqlite:///' + self.path
         log.info('Test generated connection string %s', self.connection)
+
+        self.manager = Manager(connection=self.connection)
 
         self.manager.populate()
 
