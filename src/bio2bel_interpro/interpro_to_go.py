@@ -88,7 +88,7 @@ def write_interpro_to_go_belns(file, df=None):
     for _, interpro_id, go_id in df[['interpro_id', 'go_id']].itertuples():
         interpro_clean = ensure_quotes(str(interpro_id).strip())
         go_clean = ensure_quotes(str(go_id).strip())
-        print('a(InterPro:{}) eq a(GO:{})'.format(interpro_clean, go_clean), file=file)
+        print('p(InterPro:{}) eq p(GO:{})'.format(interpro_clean, go_clean), file=file)
 
 
 if __name__ == '__main__':
