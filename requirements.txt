@@ -4,3 +4,4 @@ pandas
 fuckit
 sqlalchemy
 click
+nose
