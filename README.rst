@@ -1,12 +1,10 @@
-interpro to BEL
+InterPro to BEL
 ===============
-
 Converts interpro protein families to BEL namespace
 
 Installation
 ------------
 This code can be installed with :code:`pip3 install git+https://github.com/bio2bel/interpro.git`
-
 
 Creating a Local Copy of the Namespace
 --------------------------------------
