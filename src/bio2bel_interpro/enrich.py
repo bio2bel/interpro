@@ -10,3 +10,4 @@ def enrich_proteins(graph):
     :param pybel.BELGraph graph: A BEL Graph
     """
     raise NotImplemented
+

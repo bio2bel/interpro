@@ -38,3 +38,7 @@ class TestEnrich(unittest.TestCase):
         for node in interpro_entries:
             self.assertIn(node, graph)
             self.assertIn(node, graph.edge[mapk1_hgnc])
+
+
+if __name__ == '__main__':
+    unittest.main()
