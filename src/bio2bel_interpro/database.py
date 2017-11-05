@@ -6,14 +6,10 @@ import os
 
 import pandas as pd
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker, scoped_session
+from sqlalchemy.orm import scoped_session, sessionmaker
 
-from .constants import (
-    INTERPRO_ENTRIES_URL,
-    INTERPRO_SQLITE_PATH,
-    INTERPRO_CONFIG_FILE_PATH,
-)
-from .models import Base, Entry
+from .constants import INTERPRO_CONFIG_FILE_PATH, INTERPRO_ENTRIES_URL, INTERPRO_SQLITE_PATH
+from .models import Base, Family
 from .tree import get_graph
 
 log = logging.getLogger(__name__)
@@ -43,8 +39,8 @@ class Manager(object):
         """
         self.connection = self.get_connection_string(connection)
         self.engine = create_engine(self.connection, echo=echo)
-        self.sessionmaker = sessionmaker(bind=self.engine, autoflush=False, expire_on_commit=False)
-        self.session = scoped_session(self.sessionmaker)
+        self.session_maker = sessionmaker(bind=self.engine, autoflush=False, expire_on_commit=False)
+        self.session = scoped_session(self.session_maker)
         self.create_tables()
 
     def create_tables(self, check_first=True):
@@ -98,7 +94,7 @@ class Manager(object):
         id_model = {}
 
         for _, accession, entry_type, name in df[['ENTRY_AC', 'ENTRY_TYPE', 'ENTRY_NAME']].itertuples():
-            entry = Entry(
+            entry = Family(
                 accession=accession,
                 type=entry_type,
                 name=name
@@ -112,3 +108,11 @@ class Manager(object):
             id_model[parent].children.append(id_model[child])
 
         self.session.commit()
+
+    def get_family_by_name(self, name):
+        """Gets an InterPro family by name, if exists.
+
+        :param str name: The name to search
+        :rtype: Optional[Family]
+        """
+        return self.session.query(Family).filter(Family.name == name).one_or_none()
