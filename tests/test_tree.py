@@ -10,9 +10,11 @@ test_path = os.path.join(dir_path, 'test.txt')
 
 
 class TestTree(unittest.TestCase):
-    def setUp(self):
+    @classmethod
+    def setUpClass(cls):
+        """Saves a copy of the parsed tree for reuse by each of the test methods"""
         with open(test_path) as f:
-            self.graph = parse_interpro_tree(f)
+            cls.graph = parse_interpro_tree(f)
 
     def test_names_in_graph(self):
         """All names are nodes in graph"""
@@ -54,7 +56,7 @@ class TestTree(unittest.TestCase):
                 'Thymidine phosphorylase',
 
             },
-            set(self.graph.nodes_iter())
+            set(self.graph)
         )
 
         self.assertEqual(33, self.graph.number_of_nodes())
