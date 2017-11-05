@@ -11,6 +11,7 @@ import click
 
 from .database import Manager
 from .deploy import deploy_to_arty
+from .interpro_to_go import write_interpro_to_go_bel
 from .run import write_belns
 from .tree import write_interpro_tree
 
@@ -29,17 +30,24 @@ def deploy(force):
 
 
 @main.command()
-@click.option('-o', '--output', type=click.File('w'), default=sys.stdout)
-def write(output):
+@click.option('-f', '--file', type=click.File('w'), default=sys.stdout)
+def write(file):
     """Writes BEL namespace"""
-    write_belns(output)
+    write_belns(file=file)
 
 
 @main.command()
-@click.option('-o', '--output', type=click.File('w'), default=sys.stdout)
-def write_tree(output):
+@click.option('-f', '--file', type=click.File('w'), default=sys.stdout)
+def write_tree(file):
     """Writes the BEL tree"""
-    write_interpro_tree(output)
+    write_interpro_tree(file=file)
+
+
+@main.command()
+@click.option('-f', '--file', type=click.File('w'), default=sys.stdout)
+def write_go_mapping(file):
+    """Writes the InterPro to Gene Ontology mapping as a BEL Script"""
+    write_interpro_to_go_bel(file=file)
 
 
 @main.command()
