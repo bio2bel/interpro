@@ -1,5 +1,5 @@
-pybel_tools
-networkx
+pybel
+networkx==1.11
 pandas
 fuckit
 sqlalchemy
