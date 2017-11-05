@@ -1,20 +1,10 @@
 # -*- coding: utf-8 -*-
 
-import pandas as pd
-
 from pybel.constants import NAMESPACE_DOMAIN_GENE
 from pybel.resources.definitions import write_namespace
-from .constants import INTERPRO_ENTRIES_URL
+from .utils import get_family_entries_data
 
 MODULE_NAME = 'interpro'
-
-
-def get_data():
-    """Downloads the entry list into a pandas DataFrame
-
-    :rtype: pandas.DataFrame
-    """
-    return pd.read_csv(INTERPRO_ENTRIES_URL, sep='\t')
 
 
 def get_names():
@@ -22,11 +12,16 @@ def get_names():
 
     :rtype: pandas.DataFrame
     """
-    entries_df = get_data()
+    entries_df = get_family_entries_data()
     return entries_df['ENTRY_NAME']
 
 
-def write_belns(file, values=None):
+def write_belns(file=None, values=None):
+    """
+
+    :param file file: A write-enabled file or file-like. Defaults to standard out
+    :param values: The values to write
+    """
     values = get_names() if values is None else values
 
     write_namespace(

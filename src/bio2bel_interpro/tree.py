@@ -17,12 +17,12 @@ from .constants import INTERPRO_DATA_DIR, INTERPRO_TREE_URL
 TREE_FILE_PATH = os.path.join(INTERPRO_DATA_DIR, 'ParentChildTreeFile.txt')
 
 
-def ensure_tree_file(force_download=False):
+def ensure_interpro_family_tree_file(force_download=False):
     """Downloads the InterPro tree file to the data directory if it doesn't already exist
 
     :param bool force_download: Should the data be re-downloaded?
     """
-    if not os.path.exists(TREE_FILE_PATH) or force_download:
+    if force_download or not os.path.exists(TREE_FILE_PATH):
         urlretrieve(INTERPRO_TREE_URL, TREE_FILE_PATH)
 
 
@@ -62,7 +62,7 @@ def populate_tree(graph, file, option, parent=None, depth=0):
             populate_tree(graph, file, option, parent, depth)
 
 
-def parse_interpro_tree(file, opt=1):
+def parse_interpro_family_tree(file, opt=1):
     """Parse the InterPro entity relationship tree into a directional graph, where edges from source to
     target signify "hasChild"
 
@@ -84,21 +84,21 @@ def parse_interpro_tree(file, opt=1):
     return graph
 
 
-def get_graph(force_download=False):
+def get_interpro_family_tree(force_download=False):
     """Downloads the data and puts it into the right place and then calls :func:`parse_interpro_tree`
     returns the result of that function
 
     :rtype: networkx.DiGraph
     """
-    ensure_tree_file(force_download=force_download)
+    ensure_interpro_family_tree_file(force_download=force_download)
 
     with open(TREE_FILE_PATH, 'r') as f:
-        graph = parse_interpro_tree(f)
+        graph = parse_interpro_family_tree(f)
 
     return graph
 
 
-def write_interpro_tree_boilerplate(file=None):
+def write_interpro_family_tree_header(file=None):
     """Writes the BEL document header to the file
 
     :param file file: A writeable file or file like. Defaults to stdout
@@ -122,7 +122,7 @@ def write_interpro_tree_boilerplate(file=None):
         print(line, file=file)
 
 
-def write_interpro_tree_body(graph, file):
+def write_interpro_family_tree_body(graph, file=None):
     """Creates the lines of BEL document that represents the InterPro tree
 
     :param networkx.DiGraph graph: A graph representing the InterPro tree from :func:`main`
@@ -150,6 +150,6 @@ def write_interpro_tree(file=None, force_download=False):
     :param file file: A writeable file or file-like. Defaults to stdout.
     :param bool force_download: Should the data be re-downloaded?
     """
-    graph = get_graph(force_download=force_download)
-    write_interpro_tree_boilerplate(file)
-    write_interpro_tree_body(graph, file)
+    graph = get_interpro_family_tree(force_download=force_download)
+    write_interpro_family_tree_header(file)
+    write_interpro_family_tree_body(graph, file)

@@ -35,7 +35,7 @@ class Family(Base):
 
     id = Column(Integer, primary_key=True)
 
-    accession = Column(String(255), doc='The InterPro accession number')
+    interpro_id = Column(String(255), doc='The InterPro accession number')
     type = Column(String(255), nullable=False)
     name = Column(String(255), nullable=False)
 

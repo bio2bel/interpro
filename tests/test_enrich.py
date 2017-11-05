@@ -1,16 +1,19 @@
 # -*- coding: utf-8 -*-
 
+"""This module tests that proteins in a given BELGraph can be annotated to their families. This file does NOT
+test the existence of the InterPro hierarchy"""
+
 import unittest
 
+from bio2bel_interpro.enrich import enrich_node
 from pybel import BELGraph
-from pybel.constants import PROTEIN
+from pybel.constants import IS_A, RELATION
+from pybel.dsl import protein
 
-from bio2bel_interpro.enrich import enrich_proteins
+mapk1_hgnc = protein(namespace='HGNC', name='MAPK1', identifier='6871')
+mapk1_uniprot = protein(namespace='UNIPROT', identifier='P28482')
 
-mapk1_hgnc = PROTEIN, 'HGNC', 'MAPK1'
-mapk1_uniprot = PROTEIN, 'UNIPROT', 'P28482'
-
-interpro_entries = [
+interpro_identifiers = [
     'IPR011009',  # . Kinase-like_dom.
     'IPR003527',  # . MAP_kinase_CS.
     'IPR008349',  # . MAPK_ERK1/2.
@@ -19,25 +22,39 @@ interpro_entries = [
     'IPR008271',  # . Ser/Thr_kinase_AS.
 ]
 
-intepro_node_tuples = [
-    (PROTEIN, 'INTERPRO', accession)
-    for accession in interpro_entries
+interpro_family_nodes = [
+    protein(namespace='INTERPRO', identifier=identifier)
+    for identifier in interpro_identifiers
 ]
 
 
 class TestEnrich(unittest.TestCase):
-    def test_annotate(self):
+    def test_enrich_uniprot(self):
+        graph = BELGraph()
+        mapk1_uniprot_tuple = graph.add_node_from_data(mapk1_uniprot)
+
+        enrich_node(graph, mapk1_uniprot_tuple)
+
+        for interpro_family_node in interpro_family_nodes:
+            self.assertTrue(graph.has_node_with_data(interpro_family_node))
+            self.assertIn(interpro_family_node, graph.edge[mapk1_uniprot_tuple])
+            v = list(graph.edge[mapk1_uniprot_tuple][interpro_family_node].values())[0]
+            self.assertIn(RELATION, v)
+            self.assertEqual(IS_A, v[RELATION])
+
+    def test_enrich_hgnc(self):
         """Tests that the enrich_proteins function gets the interpro entries in the graph"""
         graph = BELGraph()
-        graph.add_simple_node(*mapk1_hgnc)
+        mapk1_hgnc_tuple = graph.add_node_from_data(mapk1_hgnc)
 
-        self.assertEqual(1, graph.number_of_nodes())
+        enrich_node(graph, mapk1_hgnc_tuple)
 
-        enrich_proteins(graph)
-
-        for node in interpro_entries:
-            self.assertIn(node, graph)
-            self.assertIn(node, graph.edge[mapk1_hgnc])
+        for interpro_family_node in interpro_family_nodes:
+            self.assertTrue(graph.has_node_with_data(interpro_family_node))
+            self.assertIn(interpro_family_node, graph.edge[mapk1_hgnc_tuple])
+            v = list(graph.edge[mapk1_hgnc_tuple][interpro_family_node].values())[0]
+            self.assertIn(RELATION, v)
+            self.assertEqual(IS_A, v[RELATION])
 
 
 if __name__ == '__main__':

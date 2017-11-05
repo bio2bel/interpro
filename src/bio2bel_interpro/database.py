@@ -4,29 +4,15 @@ import configparser
 import logging
 import os
 
-import pandas as pd
 from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
 
-from .constants import INTERPRO_CONFIG_FILE_PATH, INTERPRO_ENTRIES_URL, INTERPRO_SQLITE_PATH
+from .constants import INTERPRO_CONFIG_FILE_PATH, INTERPRO_SQLITE_PATH
 from .models import Base, Family
-from .tree import get_graph
+from .tree import get_interpro_family_tree
+from .utils import get_family_entries_data
 
 log = logging.getLogger(__name__)
-
-
-def get_data():
-    """Gets the entries data
-
-    :return: A data frame containing the original source data
-    :rtype: pandas.DataFrame
-    """
-    return pd.read_csv(
-        INTERPRO_ENTRIES_URL,
-        sep='\t',
-        skiprows=1,
-        names=('ENTRY_AC', 'ENTRY_TYPE', 'ENTRY_NAME')
-    )
 
 
 class Manager(object):
@@ -84,12 +70,12 @@ class Manager(object):
 
         return INTERPRO_SQLITE_PATH
 
-    def populate(self, force_download=False):
+    def populate_entries(self, force_download=False):
         """Populates the database
 
         :param bool force_download: Should the data be downloaded again, or cache used if exists?
         """
-        df = get_data()
+        df = get_family_entries_data()
 
         id_model = {}
 
@@ -102,12 +88,18 @@ class Manager(object):
             self.session.add(entry)
             id_model[name] = entry
 
-        graph = get_graph(force_download=force_download)
+        graph = get_interpro_family_tree(force_download=force_download)
 
         for parent, child in graph.edges_iter():
             id_model[parent].children.append(id_model[child])
 
         self.session.commit()
+
+    def populate_tree(self):
+        raise NotImplementedError
+
+    def populate_protein_membership(self):
+        raise NotImplementedError
 
     def get_family_by_name(self, name):
         """Gets an InterPro family by name, if exists.

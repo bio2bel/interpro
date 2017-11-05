@@ -19,7 +19,7 @@ class TestManager(unittest.TestCase):
 
         self.manager = Manager(connection=self.connection)
 
-        self.manager.populate()
+        self.manager.populate_entries()
 
     def tearDown(self):
         """Closes the connection in the manager and deletes the temporary database"""
@@ -35,7 +35,7 @@ class TestManager(unittest.TestCase):
         child = self.manager.get_family_by_name('Ubiquitin-activating enzyme E1')
         self.assertIsNotNone(child)
 
-        self.assertEqual(result.accession, 'IPR000011')
+        self.assertEqual(result.interpro_id, 'IPR000011')
         self.assertEqual(len(result.children), 1)
         self.assertIn(child, result.children)
 

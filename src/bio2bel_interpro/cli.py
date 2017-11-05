@@ -55,7 +55,7 @@ def write_go_mapping(file):
 def populate(connection):
     """Populates the database"""
     manager = Manager(connection=connection)
-    manager.populate()
+    manager.populate_entries()
 
 
 if __name__ == '__main__':
