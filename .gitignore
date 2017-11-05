@@ -106,3 +106,5 @@ scratch/*
 
 
 scratch/scratch.py
+*.ipynb
+
