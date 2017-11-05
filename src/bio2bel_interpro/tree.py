@@ -1,14 +1,17 @@
 # -*- coding: utf-8 -*-
 
+from __future__ import print_function
+
 import os
 from urllib.request import urlretrieve
 
 import fuckit
 import networkx as nx
 
+from pybel.resources.arty import get_latest_arty_namespace
+from pybel.resources.defaults import CONFIDENCE
+from pybel.resources.document import make_knowledge_header
 from pybel.utils import ensure_quotes
-from pybel_tools.document_utils import write_boilerplate
-from pybel_tools.resources import get_latest_arty_namespace, CONFIDENCE
 from .constants import INTERPRO_DATA_DIR, INTERPRO_TREE_URL
 
 TREE_FILE_PATH = os.path.join(INTERPRO_DATA_DIR, 'ParentChildTreeFile.txt')
@@ -100,21 +103,23 @@ def write_interpro_tree_boilerplate(file=None):
 
     :param file file: A writeable file or file like. Defaults to stdout
     """
-    write_boilerplate(
-        document_name='InterPro Tree',
+    lines = make_knowledge_header(
+        name='InterPro Tree',
         authors='Aram Grigoryan and Charles Tapley Hoyt',
         contact='aram.grigoryan@scai.fraunhofer.de',
         licenses='Creative Commons by 4.0',
         copyright='Copyright (c) 2017 Aram Grigoryan. All Rights Reserved.',
         description="""This BEL document represents relations from InterPro entity relationship tree""",
-        namespace_dict={
+        namespace_url={
             'INTERPRO': get_latest_arty_namespace('interpro'),
         },
         namespace_patterns={},
-        annotations_dict={'Confidence': CONFIDENCE},
-        annotations_patterns={},
-        file=file
+        annotation_url={'Confidence': CONFIDENCE},
+        annotation_patterns={},
     )
+
+    for line in lines:
+        print(line, file=file)
 
 
 def write_interpro_tree_body(graph, file):

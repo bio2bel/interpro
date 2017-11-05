@@ -3,7 +3,7 @@
 import pandas as pd
 
 from pybel.constants import NAMESPACE_DOMAIN_GENE
-from pybel_tools.definition_utils import write_namespace
+from pybel.resources.definitions import write_namespace
 from .constants import INTERPRO_ENTRIES_URL
 
 MODULE_NAME = 'interpro'

@@ -2,7 +2,8 @@
 
 import logging
 
-from pybel_tools.resources import get_today_arty_namespace, deploy_namespace, deploy_knowledge
+from pybel.resources.arty import get_today_arty_namespace
+from pybel.resources.deploy import deploy_knowledge, deploy_namespace
 from .run import MODULE_NAME, write_belns
 from .tree import write_interpro_tree
 
