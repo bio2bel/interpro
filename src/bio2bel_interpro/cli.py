@@ -9,10 +9,11 @@ import sys
 
 import click
 
-from .database import Manager
+from .constants import DEFAULT_CACHE_CONNECTION
+from .manager import Manager
 from .deploy import deploy_to_arty
 from .interpro_to_go import write_interpro_to_go_bel
-from .run import write_belns
+from .to_belns import write_belns
 from .tree import write_interpro_tree
 
 
@@ -51,11 +52,26 @@ def write_go_mapping(file):
 
 
 @main.command()
-@click.option('-c', '--connection', help='Connection to cache. Defaults to {}'.format(Manager.get_connection_string()))
+@click.option('-c', '--connection', help='Connection to cache. Defaults to {}'.format(DEFAULT_CACHE_CONNECTION))
 def populate(connection):
     """Populates the database"""
     manager = Manager(connection=connection)
     manager.populate_entries()
+
+
+@main.command()
+@click.option('-c', '--connection', help='Connection to cache. Defaults to {}'.format(DEFAULT_CACHE_CONNECTION))
+def drop(connection):
+    """Drops the database"""
+    manager = Manager(connection=connection)
+    manager.drop_all()
+
+
+@main.command()
+def web():
+    """Run the web app"""
+    from .web import app
+    app.run(host='0.0.0.0', port=5000)
 
 
 if __name__ == '__main__':

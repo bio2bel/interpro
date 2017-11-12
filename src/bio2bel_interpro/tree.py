@@ -12,9 +12,9 @@ from pybel.resources.arty import get_latest_arty_namespace
 from pybel.resources.defaults import CONFIDENCE
 from pybel.resources.document import make_knowledge_header
 from pybel.utils import ensure_quotes
-from .constants import INTERPRO_DATA_DIR, INTERPRO_TREE_URL
+from .constants import DATA_DIR, INTERPRO_TREE_URL
 
-TREE_FILE_PATH = os.path.join(INTERPRO_DATA_DIR, 'ParentChildTreeFile.txt')
+TREE_FILE_PATH = os.path.join(DATA_DIR, 'ParentChildTreeFile.txt')
 
 
 def ensure_interpro_family_tree_file(force_download=False):

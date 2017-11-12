@@ -1,11 +1,5 @@
 # -*- coding: utf-8 -*-
 
-from . import cli
-from . import run
-from . import tree
-from .run import *
-from .tree import *
-
 __version__ = '0.1.1-dev'
 
 __title__ = 'bio2bel_interpro'

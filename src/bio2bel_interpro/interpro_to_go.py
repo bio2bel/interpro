@@ -7,7 +7,7 @@ from urllib.request import urlretrieve
 
 import pandas as pd
 
-from bio2bel_interpro.constants import INTERPRO_DATA_DIR
+from bio2bel_interpro.constants import DATA_DIR
 from pybel.resources.document import make_knowledge_header
 from pybel.utils import ensure_quotes
 
@@ -15,7 +15,7 @@ log = logging.getLogger(__name__)
 
 INTERPRO_GO_MAPPING_URL = 'ftp://ftp.ebi.ac.uk/pub/databases/interpro/interpro2go'
 #: Local download location for interpro2go mapping
-INTERPRO_GO_MAPPING_PATH = os.path.join(INTERPRO_DATA_DIR, 'interpro2go.txt')
+INTERPRO_GO_MAPPING_PATH = os.path.join(DATA_DIR, 'interpro2go.txt')
 
 INTERPRO_REGEX = '(InterPro)(.)(IPR)(\d+)'
 INTERPRO_REGEX_COMPILED = re.compile(INTERPRO_REGEX)

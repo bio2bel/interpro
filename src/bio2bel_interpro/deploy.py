@@ -4,7 +4,8 @@ import logging
 
 from pybel.resources.arty import get_today_arty_namespace
 from pybel.resources.deploy import deploy_knowledge, deploy_namespace
-from .run import MODULE_NAME, write_belns
+from .constants import MODULE_NAME
+from .to_belns import write_belns
 from .tree import write_interpro_tree
 
 log = logging.getLogger(__name__)

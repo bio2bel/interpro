@@ -1,13 +1,11 @@
 # -*- coding: utf-8 -*-
 
-import configparser
 import logging
-import os
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
 
-from .constants import INTERPRO_CONFIG_FILE_PATH, INTERPRO_SQLITE_PATH
+from .constants import DEFAULT_CACHE_CONNECTION
 from .models import Base, Family
 from .tree import get_interpro_family_tree
 from .utils import get_family_entries_data
@@ -16,59 +14,30 @@ log = logging.getLogger(__name__)
 
 
 class Manager(object):
-    """Creates a connection to database and a persistient session using SQLAlchemy"""
+    """Creates a connection to database and a persistent session using SQLAlchemy"""
 
     def __init__(self, connection=None, echo=False):
         """
-        :param str connection: SQLAlchemy
+        :param Optional[str] connection: SQLAlchemy connection string
         :param bool echo: True or False for SQL output of SQLAlchemy engine
         """
-        self.connection = self.get_connection_string(connection)
+        self.connection = connection or DEFAULT_CACHE_CONNECTION
         self.engine = create_engine(self.connection, echo=echo)
         self.session_maker = sessionmaker(bind=self.engine, autoflush=False, expire_on_commit=False)
         self.session = scoped_session(self.session_maker)
-        self.create_tables()
+        self.create_all()
 
-    def create_tables(self, check_first=True):
+    def create_all(self, check_first=True):
         """creates all tables from models in your database
 
         :param bool check_first: True or False check if tables already exists
         """
-        log.info('create tables in {}'.format(self.engine.url))
         Base.metadata.create_all(self.engine, checkfirst=check_first)
 
-    def drop_tables(self):
+    def drop_all(self):
         """drops all tables in the database"""
         log.info('drop tables in {}'.format(self.engine.url))
         Base.metadata.drop_all(self.engine)
-
-    @staticmethod
-    def get_connection_string(connection=None):
-        """Return the SQLAlchemy connection string if it is set
-
-        :param connection: get the SQLAlchemy connection string
-        :rtype: str
-        """
-        if connection:
-            return connection
-
-        config = configparser.ConfigParser()
-
-        cfp = INTERPRO_CONFIG_FILE_PATH
-
-        if os.path.exists(cfp):
-            log.info('fetch database configuration from {}'.format(cfp))
-            config.read(cfp)
-            connection = config['database']['sqlalchemy_connection_string']
-            log.info('load connection string from {}: {}'.format(cfp, connection))
-            return connection
-
-        with open(cfp, 'w') as config_file:
-            config['database'] = {'sqlalchemy_connection_string': INTERPRO_SQLITE_PATH}
-            config.write(config_file)
-            log.info('create configuration file {}'.format(cfp))
-
-        return INTERPRO_SQLITE_PATH
 
     def populate_entries(self, force_download=False):
         """Populates the database

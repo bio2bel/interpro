@@ -2,9 +2,8 @@
 
 from pybel.constants import NAMESPACE_DOMAIN_GENE
 from pybel.resources.definitions import write_namespace
+from .constants import MODULE_NAME
 from .utils import get_family_entries_data
-
-MODULE_NAME = 'interpro'
 
 
 def get_names():
@@ -26,7 +25,7 @@ def write_belns(file=None, values=None):
 
     write_namespace(
         namespace_name='InterPro Protein Families',
-        namespace_keyword='INTERPRO',
+        namespace_keyword=MODULE_NAME.upper(),
         namespace_domain=NAMESPACE_DOMAIN_GENE,
         author_name='Charles Tapley Hoyt',
         author_contact='charles.hoyt@scai.fraunhofer.de',
