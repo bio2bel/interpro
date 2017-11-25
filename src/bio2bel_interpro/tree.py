@@ -25,7 +25,7 @@ def ensure_interpro_family_tree_file(force_download=False):
     if force_download or not os.path.exists(TREE_FILE_PATH):
         urlretrieve(INTERPRO_TREE_URL, TREE_FILE_PATH)
 
-
+# TODO rewrite this because it's incredibly difficult to understand
 def populate_tree(graph, file, option, parent=None, depth=0):
     """Populates the graph with
 
@@ -35,30 +35,34 @@ def populate_tree(graph, file, option, parent=None, depth=0):
     :param parent:
     :param depth:
     """
-    line = file.readline()
+    line = next(file)
     word = '::'.join(line.split('::')[:2])
     dashes = word.split('::')[0].count('-') // 2
+
     if depth == 0:
         parent = word[2::]
         populate_tree(graph, file, option, parent, depth + 1)
 
     while word:
         if dashes == depth:
-
             word = word[2 * dashes::]
 
-            graph.add_edge(parent.split('::')[option], word.split('::')[option])
-            # print(parent)
-            populate_tree(graph, file, option, parent, depth)
-        elif dashes < depth:
+            pn = parent.split('::')[option]
+            cn = word.split('::')[option]
 
-            # word = word[2*dashes::]
+            graph.add_edge(pn, cn)
+            populate_tree(graph, file, option, parent, depth)
+
+        elif dashes < depth:
             populate_tree(graph, file, option, word, depth)
+
         elif dashes > depth:
             word = word[2 * dashes::]
-
-            graph.add_edge(list(graph.edge[parent.split('::')[option]].keys())[-1], word.split('::')[option])
-
+            temp = parent.split('::')[option]
+            temp2 = graph.edge[temp]
+            pn = list(temp2.keys())[-1]
+            cn = word.split('::')[option]
+            graph.add_edge(pn, cn)
             populate_tree(graph, file, option, parent, depth)
 
 
@@ -92,7 +96,7 @@ def get_interpro_family_tree(force_download=False):
     """
     ensure_interpro_family_tree_file(force_download=force_download)
 
-    with open(TREE_FILE_PATH, 'r') as f:
+    with open(TREE_FILE_PATH) as f:
         graph = parse_interpro_family_tree(f)
 
     return graph

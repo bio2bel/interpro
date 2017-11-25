@@ -40,18 +40,18 @@ class Manager(object):
         log.info('drop tables in {}'.format(self.engine.url))
         Base.metadata.drop_all(self.engine)
 
-    def populate_entries(self, force_download=False):
+    def populate_entries(self, family_entries_url=None, force_download=False):
         """Populates the database
 
         :param bool force_download: Should the data be downloaded again, or cache used if exists?
         """
-        df = get_family_entries_data()
+        df = get_family_entries_data(url=family_entries_url)
 
         id_model = {}
 
         for _, accession, entry_type, name in df[['ENTRY_AC', 'ENTRY_TYPE', 'ENTRY_NAME']].itertuples():
             entry = Family(
-                accession=accession,
+                interpro_id=accession,
                 type=entry_type,
                 name=name
             )

@@ -5,7 +5,7 @@ import os
 import tempfile
 import unittest
 
-from bio2bel_interpro.database import Manager
+from bio2bel_interpro.manager import Manager
 
 log = logging.getLogger(__name__)
 

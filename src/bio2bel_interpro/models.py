@@ -6,6 +6,8 @@ from sqlalchemy import Column, ForeignKey, Integer, String, Table
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 
+from pybel.dsl import protein
+
 TABLE_PREFIX = 'interpro'
 FAMILY_TABLE_NAME = '{}_family'.format(TABLE_PREFIX)
 TREE_TABLE_NAME = '{}_tree'.format(TABLE_PREFIX)
@@ -35,9 +37,9 @@ class Family(Base):
 
     id = Column(Integer, primary_key=True)
 
-    interpro_id = Column(String(255), doc='The InterPro accession number')
+    interpro_id = Column(String(255), unique=True, index=True, nullable=False, doc='The InterPro identifier')
     type = Column(String(255), nullable=False)
-    name = Column(String(255), nullable=False)
+    name = Column(String(255), nullable=False, unique=True, index=True, doc='The InterPro entry name')
 
     children = relationship(
         'Family',
@@ -45,6 +47,13 @@ class Family(Base):
         primaryjoin=(id == entry_hierarchy.c.parent_id),
         secondaryjoin=(id == entry_hierarchy.c.child_id)
     )
+
+    def serialize_to_bel(self):
+        """Returns this entry as a PyBEL node data dictionary
+
+        :rtype: dict
+        """
+        return protein(namespace='INTERPRO', name=self.name, identifier=self.interpro_id)
 
 
 class Protein(Base):
