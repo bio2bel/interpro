@@ -1,5 +1,6 @@
 pybel
 networkx==1.11
+bio2bel
 pandas
 fuckit
 sqlalchemy

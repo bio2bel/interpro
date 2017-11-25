@@ -5,7 +5,8 @@ import logging
 from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
 
-from .constants import DEFAULT_CACHE_CONNECTION
+from bio2bel.utils import get_connection
+from .constants import MODULE_NAME
 from .models import Base, Family
 from .tree import get_interpro_family_tree
 from .utils import get_family_entries_data
@@ -21,7 +22,7 @@ class Manager(object):
         :param Optional[str] connection: SQLAlchemy connection string
         :param bool echo: True or False for SQL output of SQLAlchemy engine
         """
-        self.connection = connection or DEFAULT_CACHE_CONNECTION
+        self.connection = get_connection(MODULE_NAME, connection=connection)
         self.engine = create_engine(self.connection, echo=echo)
         self.session_maker = sessionmaker(bind=self.engine, autoflush=False, expire_on_commit=False)
         self.session = scoped_session(self.session_maker)

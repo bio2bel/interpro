@@ -11,6 +11,7 @@ META_PATH = os.path.join('src', 'bio2bel_interpro', '__init__.py')
 INSTALL_REQUIRES = [
     'pybel',
     'networkx',
+    'bio2bel',
     'click',
     'sqlalchemy',
     'pandas',
