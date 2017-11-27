@@ -13,9 +13,9 @@ INSTALL_REQUIRES = [
     'networkx',
     'bio2bel',
     'click',
-    'sqlalchemy',
+    'sqlalchemy'
+    'tqdm',
     'pandas',
-    'fuckit',
 ]
 ENTRY_POINTS = {
     'bio2bel': [

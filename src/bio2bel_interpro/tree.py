@@ -5,8 +5,8 @@ from __future__ import print_function
 import os
 from urllib.request import urlretrieve
 
-import fuckit
 import networkx as nx
+from tqdm import tqdm
 
 from pybel.resources.arty import get_latest_arty_namespace
 from pybel.resources.defaults import CONFIDENCE
@@ -25,81 +25,69 @@ def ensure_interpro_family_tree_file(force_download=False):
     if force_download or not os.path.exists(TREE_FILE_PATH):
         urlretrieve(INTERPRO_TREE_URL, TREE_FILE_PATH)
 
-# TODO rewrite this because it's incredibly difficult to understand
-def populate_tree(graph, file, option, parent=None, depth=0):
-    """Populates the graph with
 
-    :param graph:
-    :param file:
-    :param option:
-    :param parent:
-    :param depth:
+def count_front(s):
+    """Counts the number of leading dashes on a string
+
+    :param str s: A string
+    :rtype: int
     """
-    line = next(file)
-    word = '::'.join(line.split('::')[:2])
-    dashes = word.split('::')[0].count('-') // 2
-
-    if depth == 0:
-        parent = word[2::]
-        populate_tree(graph, file, option, parent, depth + 1)
-
-    while word:
-        if dashes == depth:
-            word = word[2 * dashes::]
-
-            pn = parent.split('::')[option]
-            cn = word.split('::')[option]
-
-            graph.add_edge(pn, cn)
-            populate_tree(graph, file, option, parent, depth)
-
-        elif dashes < depth:
-            populate_tree(graph, file, option, word, depth)
-
-        elif dashes > depth:
-            word = word[2 * dashes::]
-            temp = parent.split('::')[option]
-            temp2 = graph.edge[temp]
-            pn = list(temp2.keys())[-1]
-            cn = word.split('::')[option]
-            graph.add_edge(pn, cn)
-            populate_tree(graph, file, option, parent, depth)
+    for position, element in enumerate(s):
+        if element != '-':
+            return position
 
 
-def parse_interpro_family_tree(file, opt=1):
-    """Parse the InterPro entity relationship tree into a directional graph, where edges from source to
-    target signify "hasChild"
+def parse_tree(path=None, force_download=False):
+    """Downlaods and parses the InterPro Tree
 
-    :param file file: A readable file or file-like over the lines of the InterPro entity relationship tree.
-    :param int opt: 1 for InterPro names and 0 for InterPro identifiers
+    :param Optional[str] path: The path to the InterPro Tree file
+    :param bool force_download: Should the data be re-downloaded?
     :rtype: networkx.DiGraph
-
-    .. seealso::
-
-        The entity relation tree can be downloaded here: ftp://ftp.ebi.ac.uk/pub/databases/interpro/ParentChildTreeFile.txt
     """
-    assert opt in {0, 1}
+    if not path:
+        ensure_interpro_family_tree_file(force_download=force_download)
 
+    with open(path or TREE_FILE_PATH) as f:
+        return parse_tree_helper(f)
+
+
+def parse_tree_helper(file):
+    """Parse the InterPro Tree
+
+    :param iter[str] file: A readable file or file-like
+    :rtype: networkx.DiGraph
+    """
     graph = nx.DiGraph()
+    previous_depth, previous_id, previous_name = 0, None, None
+    stack = [previous_name]
 
-    with fuckit:
-        populate_tree(graph, file, opt, parent=None, depth=0)
+    for line in tqdm(file):
+        depth = count_front(line)
+        interpro_id, name, _ = line[depth:].split('::')
+
+        if depth == 0:
+            stack.clear()
+            stack.append(name)
+
+            graph.add_node(name, interpro_id=interpro_id, name=name)
+
+        else:
+
+            if depth > previous_depth:
+                stack.append(previous_name)
+
+            elif depth < previous_depth:
+                del stack[-1]
+
+            parent = stack[-1]
+
+            graph.add_node(name, interpro_id=interpro_id, parent=parent, name=name)
+            graph.add_edge(parent, name)
+
+        previous_depth, previous_id, previous_name = depth, interpro_id, name
 
     return graph
 
-
-def get_interpro_family_tree(force_download=False):
-    """Downloads the data and puts it into the right place and then calls :func:`parse_interpro_tree`
-    returns the result of that function
-
-    :rtype: networkx.DiGraph
-    """
-    ensure_interpro_family_tree_file(force_download=force_download)
-
-    with open(TREE_FILE_PATH) as f:
-        graph = parse_interpro_family_tree(f)
-
-    return graph
 
 
 def write_interpro_family_tree_header(file=None):
@@ -154,6 +142,6 @@ def write_interpro_tree(file=None, force_download=False):
     :param file file: A writeable file or file-like. Defaults to stdout.
     :param bool force_download: Should the data be re-downloaded?
     """
-    graph = get_interpro_family_tree(force_download=force_download)
+    graph = parse_tree(force_download=force_download)
     write_interpro_family_tree_header(file)
     write_interpro_family_tree_body(graph, file)

@@ -22,11 +22,13 @@ def create_application(connection=None, url=None):
     app = Flask(__name__)
     manager = Manager(connection=connection)
     add_admin(app, manager.session, url=url)
+    return app
 
 
 def add_admin(app, session, **kwargs):
     admin = flask_admin.Admin(app, **kwargs)
     admin.add_view(ModelView(Family, session))
+    admin.add_view(ModelView(Type, session))
     admin.add_view(ModelView(Protein, session))
     return admin
 

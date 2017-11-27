@@ -1,20 +1,17 @@
 # -*- coding: utf-8 -*-
 
-import os
 import unittest
 
-from bio2bel_interpro.tree import parse_interpro_family_tree
-
-dir_path = os.path.dirname(os.path.realpath(__file__))
-test_path = os.path.join(dir_path, 'test.txt')
+from bio2bel_interpro.tree import parse_tree_helper
+from tests.constants import test_tree_path
 
 
 class TestTree(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         """Saves a copy of the parsed tree for reuse by each of the test methods"""
-        with open(test_path) as f:
-            cls.graph = parse_interpro_family_tree(f)
+        with open(test_tree_path) as f:
+            cls.graph = parse_tree_helper(f)
 
     def test_names_in_graph(self):
         """All names are nodes in graph"""
@@ -56,41 +53,46 @@ class TestTree(unittest.TestCase):
                 'Thymidine phosphorylase',
 
             },
-            set(self.graph)
+            {data['name'] for node, data in self.graph.nodes_iter(data=True) if 'name' in data}
         )
+
+        self.assertEqual(set(), {node for node, data in self.graph.nodes_iter(data=True) if 'name' not in data})
 
         self.assertEqual(33, self.graph.number_of_nodes())
 
     def test_c2_number_children(self):
-        self.assertEqual(3, len(self.graph.edge['C2 domain']), msg='Edges: {}'.format(self.graph.edge['C2 domain']))
+        self.assertEqual(3, len(self.graph.edge['C2 domain']), msg='Edges: {}'.format(list(self.graph.edge['C2 domain'])))
 
     def test_1(self):
         """Checks members of C2 Domain"""
         self.assertIn('Phosphatidylinositol 3-kinase, C2 domain', self.graph.edge['C2 domain'])
-        self.assertEquals(0, len(self.graph.edge['Phosphatidylinositol 3-kinase, C2 domain']))
+        self.assertEqual(0, len(self.graph.edge['Phosphatidylinositol 3-kinase, C2 domain']))
 
     def test_4(self):
         """Tests Tensin phosphatase, C2 domain is not a parent"""
         self.assertIn('Tensin phosphatase, C2 domain', self.graph.edge['C2 domain'])
-        self.assertEquals(0, len(self.graph.edge['Tensin phosphatase, C2 domain']))
+        self.assertEqual(0, len(self.graph.edge['Tensin phosphatase, C2 domain']))
 
     def test_5(self):
         self.assertIn('Calpain C2 domain', self.graph.edge['C2 domain'])
-        self.assertEquals(0, len(self.graph.edge['Calpain C2 domain']))
+        self.assertEqual(0, len(self.graph.edge['Calpain C2 domain']))
 
     def test_3(self):
-        self.assertEquals(0, len(self.graph.edge['Phosphatidylinositol 3-kinase, C2 domain']))
+        self.assertEqual(0, len(self.graph.edge['Phosphatidylinositol 3-kinase, C2 domain']))
 
     def test_2(self):
         self.assertEqual(1, len(self.graph.edge['Ubiquitin/SUMO-activating enzyme E1']))
         self.assertIn('Ubiquitin-activating enzyme E1', self.graph.edge['Ubiquitin/SUMO-activating enzyme E1'])
 
+    def test_6(self):
         self.assertEqual(1, len(self.graph.edge['Anaphylatoxin/fibulin']))
         self.assertIn('Anaphylatoxin, complement system', self.graph.edge['Anaphylatoxin/fibulin'])
 
+    def test_7(self):
         self.assertEqual(1, len(self.graph.edge['Anaphylatoxin, complement system']))
         self.assertIn('Anaphylatoxin, complement system domain', self.graph.edge['Anaphylatoxin, complement system'])
 
+    def test_8(self):
         self.assertEqual(2, len(self.graph.edge['Thymidine phosphorylase/AMP phosphorylase']))
         self.assertIn('AMP phosphorylase', self.graph.edge['Thymidine phosphorylase/AMP phosphorylase'])
         self.assertIn('Putative thymidine phosphorylase', self.graph.edge['Thymidine phosphorylase/AMP phosphorylase'])

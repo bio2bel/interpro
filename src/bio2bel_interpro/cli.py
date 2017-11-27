@@ -10,17 +10,20 @@ import sys
 import click
 
 from .constants import DEFAULT_CACHE_CONNECTION
-from .manager import Manager
 from .deploy import deploy_to_arty
 from .interpro_to_go import write_interpro_to_go_bel
+from .manager import Manager
 from .to_belns import write_belns
 from .tree import write_interpro_tree
+
+log = logging.getLogger(__name__)
 
 
 @click.group()
 def main():
     """InterPro to BEL"""
-    logging.basicConfig(level=10, format="%(asctime)s - %(levelname)s - %(message)s")
+    log.setLevel(logging.INFO)
+    logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 
 
 @main.command()
@@ -56,7 +59,7 @@ def write_go_mapping(file):
 def populate(connection):
     """Populates the database"""
     manager = Manager(connection=connection)
-    manager.populate_entries()
+    manager.populate()
 
 
 @main.command()
@@ -68,9 +71,11 @@ def drop(connection):
 
 
 @main.command()
-def web():
+@click.option('-c', '--connection', help='Connection to cache. Defaults to {}'.format(DEFAULT_CACHE_CONNECTION))
+def web(connection):
     """Run the web app"""
-    from .web import app
+    from .web import create_application
+    app = create_application(connection=connection, url='/')
     app.run(host='0.0.0.0', port=5000)
 
 

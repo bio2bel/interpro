@@ -19,7 +19,7 @@ class TestManager(unittest.TestCase):
 
         self.manager = Manager(connection=self.connection)
 
-        self.manager.populate_entries()
+        self.manager.populate()
 
     def tearDown(self):
         """Closes the connection in the manager and deletes the temporary database"""
