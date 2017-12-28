@@ -64,10 +64,12 @@ def populate(connection):
 
 @main.command()
 @click.option('-c', '--connection', help='Connection to cache. Defaults to {}'.format(DEFAULT_CACHE_CONNECTION))
-def drop(connection):
+@click.option('-y', '--yes', is_flag=True)
+def drop(connection, yes):
     """Drops the database"""
     manager = Manager(connection=connection)
-    manager.drop_all()
+    if yes or click.confirm('Drop database?'):
+        manager.drop_all()
 
 
 @main.command()

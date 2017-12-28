@@ -57,7 +57,7 @@ def parse_tree_helper(file):
     previous_depth, previous_id, previous_name = 0, None, None
     stack = [previous_name]
 
-    for line in tqdm(file, desc='Tree'):
+    for line in tqdm(file, desc='Parsing Tree'):
         depth = count_front(line)
         interpro_id, name, _ = line[depth:].split('::')
 

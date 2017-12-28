@@ -82,6 +82,7 @@ class Manager(object):
 
             self.session.add(entry)
 
+        log.info('committing entries')
         self.session.commit()
 
     def populate_tree(self, path=None, force_download=False):
@@ -97,9 +98,10 @@ class Manager(object):
             for model in self.session.query(Entry).all()
         }
 
-        for parent, child in tqdm(graph.edges_iter(), desc='Tree', total=graph.number_of_edges()):
+        for parent, child in tqdm(graph.edges_iter(), desc='Building Tree', total=graph.number_of_edges()):
             name_model[child].parent = name_model[parent]
 
+        log.info('committing tree')
         self.session.commit()
 
     def populate_membership(self):
