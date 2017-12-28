@@ -8,13 +8,14 @@ from tqdm import tqdm
 
 from bio2bel.utils import get_connection
 from .constants import MODULE_NAME
-from .models import Base, Family, Type
-from .tree import parse_tree
-from .utils import get_family_entries_data
+from .models import Base, Entry, Type
+from .parser.entries import get_interpro_entries_data
+from .parser.tree import parse_tree
 
 log = logging.getLogger(__name__)
 
 COLUMNS = ['ENTRY_AC', 'ENTRY_TYPE', 'ENTRY_NAME']
+
 
 class Manager(object):
     """Creates a connection to database and a persistent session using SQLAlchemy"""
@@ -42,12 +43,26 @@ class Manager(object):
         log.info('drop tables in {}'.format(self.engine.url))
         Base.metadata.drop_all(self.engine)
 
-    def populate_entries(self, family_entries_url=None):
+    @staticmethod
+    def ensure(connection=None):
+        """Checks and allows for a Manager to be passed to the function.
+
+        :param connection: can be either a already build manager or a connection string to build a manager with.
+        """
+        if connection is None or isinstance(connection, str):
+            return Manager(connection=connection)
+
+        if isinstance(connection, Manager):
+            return connection
+
+        raise TypeError
+
+    def populate_entries(self, url=None):
         """Populates the database
 
-        :param str family_entries_url:
+        :param Optional[str] url: An optional URL for the InterPro entries' data
         """
-        df = get_family_entries_data(url=family_entries_url)
+        df = get_interpro_entries_data(url=url)
 
         id_type = {}
 
@@ -56,11 +71,10 @@ class Manager(object):
             family_type = id_type.get(entry_type)
 
             if family_type is None:
-                family_type = Type(name=entry_type)
-                id_type[entry_type] = family_type
+                family_type = id_type[entry_type] = Type(name=entry_type)
                 self.session.add(family_type)
 
-            entry = Family(
+            entry = Entry(
                 interpro_id=interpro_id,
                 type=family_type,
                 name=name
@@ -71,11 +85,16 @@ class Manager(object):
         self.session.commit()
 
     def populate_tree(self, path=None, force_download=False):
+        """Populates the hierarchical relationships of the InterPro entries
+
+        :param Optional[str] path:
+        :param bool force_download:
+        """
         graph = parse_tree(path=path, force_download=force_download)
 
         name_model = {
             model.name: model
-            for model in self.session.query(Family).all()
+            for model in self.session.query(Entry).all()
         }
 
         for parent, child in tqdm(graph.edges_iter(), desc='Tree', total=graph.number_of_edges()):
@@ -83,12 +102,12 @@ class Manager(object):
 
         self.session.commit()
 
-    def populate(self, path=None, family_entries_url=None):
-        self.populate_entries(family_entries_url=family_entries_url)
-        self.populate_tree(path=path)
-
-    def populate_protein_membership(self):
+    def populate_membership(self):
         raise NotImplementedError
+
+    def populate(self, family_entries_url=None, tree_url=None):
+        self.populate_entries(url=family_entries_url)
+        self.populate_tree(path=tree_url)
 
     def get_family_by_name(self, name):
         """Gets an InterPro family by name, if exists.
@@ -96,4 +115,18 @@ class Manager(object):
         :param str name: The name to search
         :rtype: Optional[Family]
         """
-        return self.session.query(Family).filter(Family.name == name).one_or_none()
+        return self.session.query(Entry).filter(Entry.name == name).one_or_none()
+
+    def enrich_proteins(self, graph):
+        """Finds UniProt entries and annotates their InterPro entries
+
+        :param pybel.BELGraph graph: A BEL graph
+        """
+        raise NotImplementedError
+
+    def enrich_interpros(self, graph):
+        """Finds InterPro entries and annotates their proteins
+
+        :param pybel.BELGraph graph: A BEL graph
+        """
+        raise NotImplementedError

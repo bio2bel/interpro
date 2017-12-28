@@ -3,7 +3,7 @@
 from pybel.constants import NAMESPACE_DOMAIN_GENE
 from pybel.resources.definitions import write_namespace
 from .constants import MODULE_NAME
-from .utils import get_family_entries_data
+from .parser.entries import get_interpro_entries_data
 
 
 def get_names():
@@ -11,12 +11,12 @@ def get_names():
 
     :rtype: pandas.DataFrame
     """
-    entries_df = get_family_entries_data()
+    entries_df = get_interpro_entries_data()
     return entries_df['ENTRY_NAME']
 
 
 def write_belns(file=None, values=None):
-    """
+    """Writes the InterPro entries namespace
 
     :param file file: A write-enabled file or file-like. Defaults to standard out
     :param values: The values to write

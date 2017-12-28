@@ -4,6 +4,7 @@ Bio2BEL InterPro
    :maxdepth: 2
    :caption: Contents:
 
+   enrich
    manager
    models
 

@@ -2,10 +2,10 @@
 
 import pandas as pd
 
-from .constants import INTERPRO_ENTRIES_URL
+from ..constants import INTERPRO_ENTRIES_URL
 
 
-def get_family_entries_data(url=None):
+def get_interpro_entries_data(url=None):
     """Gets the entries data
 
     :return: A data frame containing the original source data

@@ -13,8 +13,8 @@ from .constants import DEFAULT_CACHE_CONNECTION
 from .deploy import deploy_to_arty
 from .interpro_to_go import write_interpro_to_go_bel
 from .manager import Manager
+from .serialize import write_interpro_tree
 from .to_belns import write_belns
-from .tree import write_interpro_tree
 
 log = logging.getLogger(__name__)
 

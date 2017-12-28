@@ -27,7 +27,7 @@ def create_application(connection=None, url=None):
 
 def add_admin(app, session, **kwargs):
     admin = flask_admin.Admin(app, **kwargs)
-    admin.add_view(ModelView(Family, session))
+    admin.add_view(ModelView(Entry, session))
     admin.add_view(ModelView(Type, session))
     admin.add_view(ModelView(Protein, session))
     return admin

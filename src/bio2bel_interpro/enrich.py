@@ -1,12 +1,32 @@
 # -*- coding: utf-8 -*-
 
-def enrich_graph(graph, node):
-    pass
+import logging
+
+from .manager import Manager
+
+log = logging.getLogger(__name__)
+
+__all__ = [
+    'enrich_proteins',
+    'enrich_interpros',
+]
 
 
-def enrich_node(graph, node):
-    """Adds the InterPro annotations for proteins in the graph
+def enrich_proteins(graph, connection=None):
+    """Finds UniProt entries and annotates their InterPro entries
 
-    :param pybel.BELGraph graph: A BEL Graph
+    :param pybel.BELGraph graph: A BEL graph
+    :type connection: str or bio2bel_interpro.manager.Manager
     """
-    raise NotImplementedError
+    m = Manager.ensure(connection)
+    m.enrich_proteins(graph)
+
+
+def enrich_interpros(graph, connection=None):
+    """Finds InterPro entries and annotates their proteins
+
+    :param pybel.BELGraph graph: A BEL graph
+    :type connection: str or bio2bel_interpro.manager.Manager
+    """
+    m = Manager.ensure(connection=connection)
+    m.enrich_interpros(graph)

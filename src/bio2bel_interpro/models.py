@@ -9,18 +9,18 @@ from sqlalchemy.orm import backref, relationship
 from pybel.dsl import protein
 
 TABLE_PREFIX = 'interpro'
-FAMILY_TABLE_NAME = '{}_family'.format(TABLE_PREFIX)
+ENTRY_TABLE_NAME = '{}_entry'.format(TABLE_PREFIX)
 TYPE_TABLE_NAME = '{}_type'.format(TABLE_PREFIX)
 PROTEIN_TABLE_NAME = '{}_protein'.format(TABLE_PREFIX)
-PROTEIN_FAMILY_TABLE_NAME = '{}_protein_family'.format(TABLE_PREFIX)
+ENTRY_PROTEIN_TABLE_NAME = '{}_entry_protein'.format(TABLE_PREFIX)
 
 Base = declarative_base()
 
-protein_family = Table(
-    PROTEIN_FAMILY_TABLE_NAME,
+entry_protein = Table(
+    ENTRY_PROTEIN_TABLE_NAME,
     Base.metadata,
+    Column('entry_id', Integer, ForeignKey('{}.id'.format(ENTRY_TABLE_NAME)), primary_key=True),
     Column('protein_id', Integer, ForeignKey('{}.id'.format(PROTEIN_TABLE_NAME)), primary_key=True),
-    Column('family_id', Integer, ForeignKey('{}.id'.format(FAMILY_TABLE_NAME)), primary_key=True)
 )
 
 
@@ -35,9 +35,9 @@ class Type(Base):
         return self.name
 
 
-class Family(Base):
+class Entry(Base):
     """Represents families in InterPro"""
-    __tablename__ = FAMILY_TABLE_NAME
+    __tablename__ = ENTRY_TABLE_NAME
 
     id = Column(Integer, primary_key=True)
 
@@ -45,11 +45,12 @@ class Family(Base):
     name = Column(String(255), nullable=False, unique=True, index=True, doc='The InterPro entry name')
 
     type_id = Column(Integer, ForeignKey('{}.id'.format(TYPE_TABLE_NAME)))
-    type = relationship('Type', backref=backref('families'))
+    type = relationship('Type', backref=backref('entries'))
 
-    parent_id = Column(Integer, ForeignKey('{}.id'.format(FAMILY_TABLE_NAME)))
+    parent_id = Column(Integer, ForeignKey('{}.id'.format(ENTRY_TABLE_NAME)))
+    children = relationship('Entry', backref=backref('parent', remote_side=[id]))
 
-    # parent = relationship('Family', remote_side=[id])
+    proteins = relationship('Protein', secondary=entry_protein, backref=backref('entries'))
 
     def __str__(self):
         return self.name
@@ -59,7 +60,11 @@ class Family(Base):
 
         :rtype: dict
         """
-        return protein(namespace='INTERPRO', name=self.name, identifier=self.interpro_id)
+        return protein(
+            namespace='INTERPRO',
+            name=str(self.name),
+            identifier=str(self.interpro_id)
+        )
 
 
 class Protein(Base):
@@ -68,6 +73,4 @@ class Protein(Base):
 
     id = Column(Integer, primary_key=True)
 
-    # TODO add fields?
-
-    families = relationship('Family', secondary=protein_family)
+    uniprot_id = Column(String, nullable=False, index=True, doc='UniProt identifier')

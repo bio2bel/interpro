@@ -5,13 +5,13 @@ test the existence of the InterPro hierarchy"""
 
 import unittest
 
-from bio2bel_interpro.enrich import enrich_node
 from pybel import BELGraph
 from pybel.constants import IS_A, RELATION
 from pybel.dsl import protein
+from tests.constants import TemporaryManagerMixin
 
 mapk1_hgnc = protein(namespace='HGNC', name='MAPK1', identifier='6871')
-mapk1_uniprot = protein(namespace='UNIPROT', identifier='P28482')
+mapk1_uniprot = protein(namespace='UNIPROT', name='MK01_HUMAN', identifier='P28482')
 
 interpro_identifiers = [
     'IPR011009',  # . Kinase-like_dom.
@@ -28,12 +28,17 @@ interpro_family_nodes = [
 ]
 
 
-class TestEnrich(unittest.TestCase):
+class TestEnrich(TemporaryManagerMixin):
+    """Tests the enrichment functions of the manager are working properly"""
+
     def test_enrich_uniprot(self):
         graph = BELGraph()
         mapk1_uniprot_tuple = graph.add_node_from_data(mapk1_uniprot)
 
-        enrich_node(graph, mapk1_uniprot_tuple)
+        self.assertEqual(1, graph.number_of_nodes())
+        self.assertEqual(0, graph.number_of_edges())
+
+        self.manager.enrich_proteins(graph)
 
         for interpro_family_node in interpro_family_nodes:
             self.assertTrue(graph.has_node_with_data(interpro_family_node))
@@ -47,7 +52,10 @@ class TestEnrich(unittest.TestCase):
         graph = BELGraph()
         mapk1_hgnc_tuple = graph.add_node_from_data(mapk1_hgnc)
 
-        enrich_node(graph, mapk1_hgnc_tuple)
+        self.assertEqual(1, graph.number_of_nodes())
+        self.assertEqual(0, graph.number_of_edges())
+
+        self.manager.enrich_proteins(graph)
 
         for interpro_family_node in interpro_family_nodes:
             self.assertTrue(graph.has_node_with_data(interpro_family_node))

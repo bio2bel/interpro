@@ -10,10 +10,10 @@ PACKAGES = setuptools.find_packages(where='src')
 META_PATH = os.path.join('src', 'bio2bel_interpro', '__init__.py')
 INSTALL_REQUIRES = [
     'pybel',
-    'networkx',
+    'networkx==1.11',
     'bio2bel',
     'click',
-    'sqlalchemy'
+    'sqlalchemy',
     'tqdm',
     'pandas',
 ]

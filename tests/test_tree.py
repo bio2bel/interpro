@@ -2,7 +2,7 @@
 
 import unittest
 
-from bio2bel_interpro.tree import parse_tree_helper
+from bio2bel_interpro.parser.tree import parse_tree_helper
 from tests.constants import test_tree_path
 
 
