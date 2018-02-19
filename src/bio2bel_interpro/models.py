@@ -73,4 +73,4 @@ class Protein(Base):
 
     id = Column(Integer, primary_key=True)
 
-    uniprot_id = Column(String, nullable=False, index=True, doc='UniProt identifier')
+    uniprot_id = Column(String(32), nullable=False, index=True, doc='UniProt identifier')
