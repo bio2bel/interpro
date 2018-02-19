@@ -108,3 +108,4 @@ scratch/*
 scratch/scratch.py
 *.ipynb
 
+.idea
