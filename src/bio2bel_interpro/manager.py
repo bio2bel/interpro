@@ -12,7 +12,7 @@ from pybel.resources.arty import get_today_arty_namespace
 from pybel.resources.definitions import write_namespace
 from pybel.resources.deploy import deploy_namespace
 from .constants import MODULE_NAME
-from .models import Base, Entry, Type
+from .models import Base, Entry, Protein, Type
 from .parser.entries import get_interpro_entries_data
 from .parser.tree import parse_tree
 
@@ -80,6 +80,27 @@ class Manager(object):
             return connection
 
         raise TypeError
+
+    def count_interpros(self):
+        """Counts the number of InterPro entries in the database
+
+        :rtype: int
+        """
+        return self.session.query(Entry).count()
+
+    def count_proteins(self):
+        """Counts the number of protein entries in the database
+
+        :rtype: int
+        """
+        return self.session.query(Protein).count()
+
+    def summarize(self):
+        """Returns a summary dictionary over the content of the database
+
+        :rtype: dict[str,int]
+        """
+        return dict(interpros=self.count_interpros(), proteins=self.count_proteins())
 
     def populate_entries(self, url=None):
         """Populates the database
