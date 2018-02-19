@@ -29,6 +29,9 @@ INSTALL_REQUIRES = [
     'tqdm',
     'pandas',
 ]
+EXTRAS_REQUIRE = {
+    'web': ['flask', 'flask-admin'],
+}
 ENTRY_POINTS = {
     'bio2bel': [
         'interpro = bio2bel_interpro',
@@ -83,5 +86,6 @@ if __name__ == '__main__':
         packages=PACKAGES,
         package_dir={'': 'src'},
         install_requires=INSTALL_REQUIRES,
+        extras_require=EXTRAS_REQUIRE,
         entry_points=ENTRY_POINTS,
     )
