@@ -17,9 +17,12 @@ def ensure_interpro_family_tree_file(force_download=False):
     """Downloads the InterPro tree file to the data directory if it doesn't already exist
 
     :param bool force_download: Should the data be re-downloaded?
+    :rtype: str
     """
     if force_download or not os.path.exists(TREE_FILE_PATH):
         urlretrieve(INTERPRO_TREE_URL, TREE_FILE_PATH)
+
+    return TREE_FILE_PATH
 
 
 def count_front(s):
@@ -41,7 +44,7 @@ def parse_tree(path=None, force_download=False):
     :rtype: networkx.DiGraph
     """
     if not path:
-        ensure_interpro_family_tree_file(force_download=force_download)
+        path = ensure_interpro_family_tree_file(force_download=force_download)
 
     with open(path or TREE_FILE_PATH) as f:
         return parse_tree_helper(f)
