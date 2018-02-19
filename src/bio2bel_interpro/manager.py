@@ -7,6 +7,10 @@ from sqlalchemy.orm import scoped_session, sessionmaker
 from tqdm import tqdm
 
 from bio2bel.utils import get_connection
+from pybel.constants import NAMESPACE_DOMAIN_GENE
+from pybel.resources.arty import get_today_arty_namespace
+from pybel.resources.definitions import write_namespace
+from pybel.resources.deploy import deploy_namespace
 from .constants import MODULE_NAME
 from .models import Base, Entry, Type
 from .parser.entries import get_interpro_entries_data
@@ -15,6 +19,26 @@ from .parser.tree import parse_tree
 log = logging.getLogger(__name__)
 
 COLUMNS = ['ENTRY_AC', 'ENTRY_TYPE', 'ENTRY_NAME']
+
+
+def _write_bel_namespace_helper(values, file):
+    """Writes the InterPro entries namespace
+
+    :param file file: A write-enabled file or file-like. Defaults to standard out
+    :param values: The values to write
+    """
+    write_namespace(
+        namespace_name='InterPro Protein Families',
+        namespace_keyword=MODULE_NAME.upper(),
+        namespace_domain=NAMESPACE_DOMAIN_GENE,
+        author_name='Charles Tapley Hoyt',
+        author_contact='charles.hoyt@scai.fraunhofer.de',
+        author_copyright='Creative Commons by 4.0',
+        citation_name='InterPro',
+        values=values,
+        functions='P',
+        file=file
+    )
 
 
 class Manager(object):
@@ -132,3 +156,19 @@ class Manager(object):
         :param pybel.BELGraph graph: A BEL graph
         """
         raise NotImplementedError
+
+    def write_bel_namespace(self, file):
+        values = [name for name, in self.session.query(Entry.name).all()]
+        _write_bel_namespace_helper(values, file)
+
+    def deploy_bel_namespace(self):
+        """Creates and deploys the Gene Names Namespace
+
+        :rtype: Optional[str]
+        """
+        file_name = get_today_arty_namespace('interpro')
+
+        with open(file_name, 'w') as file:
+            self.write_bel_namespace(file)
+
+        return deploy_namespace(file_name, module_name='interpro')

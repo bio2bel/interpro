@@ -10,11 +10,9 @@ import sys
 import click
 
 from .constants import DEFAULT_CACHE_CONNECTION
-from .deploy import deploy_to_arty
 from .interpro_to_go import write_interpro_to_go_bel
 from .manager import Manager
 from .serialize import write_interpro_tree
-from .to_belns import write_belns
 
 log = logging.getLogger(__name__)
 
@@ -30,17 +28,19 @@ def main(ctx, connection):
 
 
 @main.command()
-@click.option('--force', is_flag=True, help="Force knowledge to be uploaded even if not new namespace")
-def deploy(force):
-    """Deploy to ArtiFactory"""
-    deploy_to_arty(not force)
+@click.option('-o', '--output', type=click.File('w'), default=sys.stdout)
+@click.pass_obj
+def write_bel_namespace(manager, output):
+    """Write the BEL namespace"""
+    manager.write_bel_namespace(output)
 
 
 @main.command()
-@click.option('-f', '--file', type=click.File('w'), default=sys.stdout)
-def write(file):
-    """Writes BEL namespace"""
-    write_belns(file=file)
+@click.option('-o', '--output', type=click.File('w'), default=sys.stdout)
+@click.pass_obj
+def deploy_bel_namespace(manager):
+    """Deploy the BEL namespace"""
+    manager.deploy_bel_namespace()
 
 
 @main.command()
