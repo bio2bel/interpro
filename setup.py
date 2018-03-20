@@ -21,7 +21,7 @@ CLASSIFIERS = [
     'Topic :: Scientific/Engineering :: Bio-Informatics'
 ]
 INSTALL_REQUIRES = [
-    'pybel',
+    'pybel[deployment]',
     'networkx==1.11',
     'bio2bel',
     'click',
