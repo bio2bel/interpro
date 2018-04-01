@@ -2,27 +2,31 @@
 
 from __future__ import print_function
 
+import logging
 import os
 from urllib.request import urlretrieve
 
 import networkx as nx
 from tqdm import tqdm
 
-from ..constants import DATA_DIR, INTERPRO_TREE_URL
+from ..constants import INTERPRO_TREE_PATH, INTERPRO_TREE_URL
 
-TREE_FILE_PATH = os.path.join(DATA_DIR, 'ParentChildTreeFile.txt')
+log = logging.getLogger(__name__)
 
 
-def ensure_interpro_family_tree_file(force_download=False):
+def download_interpro_tree(force_download=False):
     """Downloads the InterPro tree file to the data directory if it doesn't already exist
 
     :param bool force_download: Should the data be re-downloaded?
     :rtype: str
     """
-    if force_download or not os.path.exists(TREE_FILE_PATH):
-        urlretrieve(INTERPRO_TREE_URL, TREE_FILE_PATH)
+    if force_download or not os.path.exists(INTERPRO_TREE_PATH):
+        log.info('downloading %s to %s', INTERPRO_TREE_URL, INTERPRO_TREE_PATH)
+        urlretrieve(INTERPRO_TREE_URL, INTERPRO_TREE_PATH)
+    else:
+        log.info('using cached data at %s', INTERPRO_TREE_PATH)
 
-    return TREE_FILE_PATH
+    return INTERPRO_TREE_PATH
 
 
 def count_front(s):
@@ -36,31 +40,31 @@ def count_front(s):
             return position
 
 
-def parse_tree(path=None, force_download=False):
-    """Downlaods and parses the InterPro Tree
+def get_interpro_tree(path=None, force_download=False):
+    """Downloads and parses the InterPro Tree
 
     :param Optional[str] path: The path to the InterPro Tree file
     :param bool force_download: Should the data be re-downloaded?
     :rtype: networkx.DiGraph
     """
     if not path:
-        path = ensure_interpro_family_tree_file(force_download=force_download)
+        path = download_interpro_tree(force_download=force_download)
 
-    with open(path or TREE_FILE_PATH) as f:
+    with open(path) as f:
         return parse_tree_helper(f)
 
 
-def parse_tree_helper(file):
+def parse_tree_helper(lines):
     """Parse the InterPro Tree from the given file
 
-    :param iter[str] file: A readable file or file-like
+    :param iter[str] lines: A readable file or file-like
     :rtype: networkx.DiGraph
     """
     graph = nx.DiGraph()
     previous_depth, previous_id, previous_name = 0, None, None
     stack = [previous_name]
 
-    for line in tqdm(file, desc='Parsing Tree'):
+    for line in tqdm(lines, desc='Parsing Tree'):
         depth = count_front(line)
         interpro_id, name, _ = line[depth:].split('::')
 

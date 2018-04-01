@@ -36,7 +36,7 @@ class Type(Base):
 
 
 class Entry(Base):
-    """Represents families in InterPro"""
+    """Represents families, domains, etc. in InterPro"""
     __tablename__ = ENTRY_TABLE_NAME
 
     id = Column(Integer, primary_key=True)
@@ -58,7 +58,7 @@ class Entry(Base):
     def serialize_to_bel(self):
         """Returns this entry as a PyBEL node data dictionary
 
-        :rtype: dict
+        :rtype: pybel.dsl.protein
         """
         return protein(
             namespace='INTERPRO',
@@ -74,3 +74,12 @@ class Protein(Base):
     id = Column(Integer, primary_key=True)
 
     uniprot_id = Column(String(32), nullable=False, index=True, doc='UniProt identifier')
+
+    def serialize_to_bel(self):
+        """
+        :rtype: pybel.dsl.protein
+        """
+        return protein(
+            namespace='UNIPROT',
+            identifier=str(self.uniprot_id)
+        )

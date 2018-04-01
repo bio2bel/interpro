@@ -6,7 +6,9 @@ from bio2bel_interpro.parser.tree import parse_tree_helper
 from tests.constants import test_tree_path
 
 
-class TestTree(unittest.TestCase):
+class TestTreeParser(unittest.TestCase):
+    """Methods to test that the parser for the InterPro tree works properly"""
+
     @classmethod
     def setUpClass(cls):
         """Saves a copy of the parsed tree for reuse by each of the test methods"""
@@ -61,7 +63,8 @@ class TestTree(unittest.TestCase):
         self.assertEqual(33, self.graph.number_of_nodes())
 
     def test_c2_number_children(self):
-        self.assertEqual(3, len(self.graph.edge['C2 domain']), msg='Edges: {}'.format(list(self.graph.edge['C2 domain'])))
+        self.assertEqual(3, len(self.graph.edge['C2 domain']),
+                         msg='Edges: {}'.format(list(self.graph.edge['C2 domain'])))
 
     def test_1(self):
         """Checks members of C2 Domain"""

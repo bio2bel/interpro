@@ -1,4 +1,4 @@
-pybel[deployment]
+pybel[deployment]>=0.11.1
 networkx==1.11
 bio2bel
 pandas

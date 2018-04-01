@@ -2,7 +2,7 @@
 
 from pybel.resources import CONFIDENCE, get_latest_arty_namespace, make_knowledge_header
 from pybel.utils import ensure_quotes
-from .parser.tree import parse_tree
+from .parser.tree import get_interpro_tree
 
 
 def write_interpro_tree_header(file=None):
@@ -56,6 +56,6 @@ def write_interpro_tree(file=None, force_download=False):
     :param file file: A writeable file or file-like. Defaults to stdout.
     :param bool force_download: Should the data be re-downloaded?
     """
-    graph = parse_tree(force_download=force_download)
+    graph = get_interpro_tree(force_download=force_download)
     write_interpro_tree_header(file)
     write_interpro_tree_body(graph, file)

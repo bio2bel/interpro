@@ -2,19 +2,17 @@
 
 import logging
 
-from sqlalchemy import create_engine
-from sqlalchemy.orm import scoped_session, sessionmaker
 from tqdm import tqdm
 
-from bio2bel.utils import get_connection
+from bio2bel.abstractmanager import AbstractManager
 from pybel.constants import NAMESPACE_DOMAIN_GENE
 from pybel.resources.arty import get_today_arty_namespace
 from pybel.resources.definitions import write_namespace
 from pybel.resources.deploy import deploy_namespace
 from .constants import MODULE_NAME
-from .models import Base, Entry, Protein, Type
-from .parser.entries import get_interpro_entries_data
-from .parser.tree import parse_tree
+from .models import Base, Entry, Protein, Type, entry_protein
+from .parser.entries import get_interpro_entries_df
+from .parser.tree import get_interpro_tree
 
 log = logging.getLogger(__name__)
 
@@ -41,73 +39,54 @@ def _write_bel_namespace_helper(values, file):
     )
 
 
-class Manager(object):
+class Manager(AbstractManager):
     """Creates a connection to database and a persistent session using SQLAlchemy"""
 
-    def __init__(self, connection=None, echo=False):
-        """
-        :param Optional[str] connection: SQLAlchemy connection string
-        :param bool echo: True or False for SQL output of SQLAlchemy engine
-        """
-        self.connection = get_connection(MODULE_NAME, connection=connection)
-        self.engine = create_engine(self.connection, echo=echo)
-        self.session_maker = sessionmaker(bind=self.engine, autoflush=False, expire_on_commit=False)
-        self.session = scoped_session(self.session_maker)
-        self.create_all()
+    module_name = MODULE_NAME
+    flask_admin_models = [Entry, Protein, Type]
 
-    def create_all(self, check_first=True):
-        """creates all tables from models in your database
-
-        :param bool check_first: True or False check if tables already exists
-        """
-        Base.metadata.create_all(self.engine, checkfirst=check_first)
-
-    def drop_all(self):
-        """drops all tables in the database"""
-        log.info('drop tables in {}'.format(self.engine.url))
-        Base.metadata.drop_all(self.engine)
-
-    @staticmethod
-    def ensure(connection=None):
-        """Checks and allows for a Manager to be passed to the function.
-
-        :param connection: can be either a already build manager or a connection string to build a manager with.
-        """
-        if connection is None or isinstance(connection, str):
-            return Manager(connection=connection)
-
-        if isinstance(connection, Manager):
-            return connection
-
-        raise TypeError
+    @property
+    def base(self):
+        return Base
 
     def count_interpros(self):
         """Counts the number of InterPro entries in the database
 
         :rtype: int
         """
-        return self.session.query(Entry).count()
+        return self._count_model(Entry)
+
+    def count_interpro_proteins(self):
+        """Counts the number of protein-interpro associations
+
+        :rtype: int
+        """
+        return self._count_model(entry_protein)
 
     def count_proteins(self):
         """Counts the number of protein entries in the database
 
         :rtype: int
         """
-        return self.session.query(Protein).count()
+        return self._count_model(Protein)
 
     def summarize(self):
         """Returns a summary dictionary over the content of the database
 
         :rtype: dict[str,int]
         """
-        return dict(interpros=self.count_interpros(), proteins=self.count_proteins())
+        return dict(
+            interpros=self.count_interpros(),
+            interpro_proteins=self.count_interpro_proteins(),
+            proteins=self.count_proteins()
+        )
 
     def populate_entries(self, url=None):
         """Populates the database
 
         :param Optional[str] url: An optional URL for the InterPro entries' data
         """
-        df = get_interpro_entries_data(url=url)
+        df = get_interpro_entries_df(url=url)
 
         id_type = {}
 
@@ -136,7 +115,7 @@ class Manager(object):
         :param Optional[str] path:
         :param bool force_download:
         """
-        graph = parse_tree(path=path, force_download=force_download)
+        graph = get_interpro_tree(path=path, force_download=force_download)
 
         name_model = {
             model.name: model
