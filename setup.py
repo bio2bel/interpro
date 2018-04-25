@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+"""Setup.py for Bio2BEL InterPro"""
+
 import codecs
 import os
 import re
@@ -22,8 +24,8 @@ CLASSIFIERS = [
 ]
 INSTALL_REQUIRES = [
     'pybel[deployment]>=0.11.1',
+    'bio2bel>=0.0.9',
     'networkx==1.11',
-    'bio2bel',
     'click',
     'sqlalchemy',
     'tqdm',
@@ -54,7 +56,7 @@ META_FILE = read(META_PATH)
 
 
 def find_meta(meta):
-    """Extract __*meta*__ from META_FILE"""
+    """Extract __*meta*__ from META_FILE."""
     meta_match = re.search(
         r'^__{meta}__ = ["\']([^"\']*)["\']'.format(meta=meta),
         META_FILE, re.M

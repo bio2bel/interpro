@@ -2,21 +2,18 @@
 
 """Run this script with either :code:`python3 -m bio2bel_interpro deploy`"""
 
-from __future__ import print_function
-
 import logging
 import sys
 
 import click
 
-from bio2bel.cli_utils import build_cli
 from .interpro_to_go import write_interpro_to_go_bel
 from .manager import Manager
 from .serialize import write_interpro_tree
 
 log = logging.getLogger(__name__)
 
-main = build_cli(Manager)
+main = Manager.get_cli()
 
 
 @main.command()

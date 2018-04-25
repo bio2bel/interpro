@@ -6,9 +6,7 @@ from tqdm import tqdm
 
 from bio2bel.abstractmanager import AbstractManager
 from pybel.constants import NAMESPACE_DOMAIN_GENE
-from pybel.resources.arty import get_today_arty_namespace
 from pybel.resources.definitions import write_namespace
-from pybel.resources.deploy import deploy_namespace
 from .constants import MODULE_NAME
 from .models import Base, Entry, Protein, Type, entry_protein
 from .parser.entries import get_interpro_entries_df
@@ -46,8 +44,12 @@ class Manager(AbstractManager):
     flask_admin_models = [Entry, Protein, Type]
 
     @property
-    def base(self):
+    def _base(self):
         return Base
+
+    def is_populated(self):
+        """Check if the database is already populated"""
+        return 0 < self.count_interpros()
 
     def count_interpros(self):
         """Counts the number of InterPro entries in the database
@@ -132,6 +134,12 @@ class Manager(AbstractManager):
         raise NotImplementedError
 
     def populate(self, family_entries_url=None, tree_url=None):
+        """Populate the database.
+
+        :param family_entries_url:
+        :param tree_url:
+        :return:
+        """
         self.populate_entries(url=family_entries_url)
         self.populate_tree(path=tree_url)
 
@@ -144,31 +152,20 @@ class Manager(AbstractManager):
         return self.session.query(Entry).filter(Entry.name == name).one_or_none()
 
     def enrich_proteins(self, graph):
-        """Finds UniProt entries and annotates their InterPro entries
+        """Find UniProt entries and annotates their InterPro entries.
 
         :param pybel.BELGraph graph: A BEL graph
         """
         raise NotImplementedError
 
     def enrich_interpros(self, graph):
-        """Finds InterPro entries and annotates their proteins
+        """Find InterPro entries and annotates their proteins.
 
         :param pybel.BELGraph graph: A BEL graph
         """
         raise NotImplementedError
 
     def write_bel_namespace(self, file):
+        """Write an InterPro BEL namespace file."""
         values = [name for name, in self.session.query(Entry.name).all()]
         _write_bel_namespace_helper(values, file)
-
-    def deploy_bel_namespace(self):
-        """Creates and deploys the Gene Names Namespace
-
-        :rtype: Optional[str]
-        """
-        file_name = get_today_arty_namespace('interpro')
-
-        with open(file_name, 'w') as file:
-            self.write_bel_namespace(file)
-
-        return deploy_namespace(file_name, module_name='interpro')
