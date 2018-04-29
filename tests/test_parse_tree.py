@@ -55,10 +55,10 @@ class TestTreeParser(unittest.TestCase):
                 'Thymidine phosphorylase',
 
             },
-            {data['name'] for node, data in self.graph.nodes_iter(data=True) if 'name' in data}
+            {data['name'] for node, data in self.graph.nodes(data=True) if 'name' in data}
         )
 
-        self.assertEqual(set(), {node for node, data in self.graph.nodes_iter(data=True) if 'name' not in data})
+        self.assertEqual(set(), {node for node, data in self.graph.nodes(data=True) if 'name' not in data})
 
         self.assertEqual(33, self.graph.number_of_nodes())
 

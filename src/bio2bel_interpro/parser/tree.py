@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-from __future__ import print_function
 
 import logging
 import os
@@ -11,11 +10,17 @@ from tqdm import tqdm
 
 from ..constants import INTERPRO_TREE_PATH, INTERPRO_TREE_URL
 
+__all__ = [
+    'download_interpro_tree',
+    'parse_tree_helper',
+    'get_interpro_tree',
+]
+
 log = logging.getLogger(__name__)
 
 
 def download_interpro_tree(force_download=False):
-    """Downloads the InterPro tree file to the data directory if it doesn't already exist
+    """Download the InterPro tree file to the data directory if it doesn't already exist.
 
     :param bool force_download: Should the data be re-downloaded?
     :rtype: str
@@ -30,7 +35,7 @@ def download_interpro_tree(force_download=False):
 
 
 def count_front(s):
-    """Counts the number of leading dashes on a string
+    """Count the number of leading dashes on a string.
 
     :param str s: A string
     :rtype: int
@@ -41,7 +46,7 @@ def count_front(s):
 
 
 def get_interpro_tree(path=None, force_download=False):
-    """Downloads and parses the InterPro Tree
+    """Download and parse the InterPro tree.
 
     :param Optional[str] path: The path to the InterPro Tree file
     :param bool force_download: Should the data be re-downloaded?
@@ -55,7 +60,7 @@ def get_interpro_tree(path=None, force_download=False):
 
 
 def parse_tree_helper(lines):
-    """Parse the InterPro Tree from the given file
+    """Parse the InterPro Tree from the given file.
 
     :param iter[str] lines: A readable file or file-like
     :rtype: networkx.DiGraph

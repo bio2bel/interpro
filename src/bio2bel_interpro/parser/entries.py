@@ -8,6 +8,11 @@ import pandas as pd
 
 from ..constants import INTERPRO_ENTRIES_PATH, INTERPRO_ENTRIES_URL
 
+__all__ = [
+    'download_interpro_entries',
+    'get_interpro_entries_df',
+]
+
 log = logging.getLogger(__name__)
 
 

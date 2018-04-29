@@ -1,13 +1,12 @@
 # -*- coding: utf-8 -*-
 
-"""Run this script with either :code:`python3 -m bio2bel_interpro deploy`"""
+"""Run this script with :code:`python3 -m bio2bel_interpro`."""
 
 import logging
 import sys
 
 import click
 
-from .interpro_to_go import write_interpro_to_go_bel
 from .manager import Manager
 from .serialize import write_interpro_tree
 
@@ -25,25 +24,10 @@ def write_bel_namespace(manager, output):
 
 
 @main.command()
-@click.option('-o', '--output', type=click.File('w'), default=sys.stdout)
-@click.pass_obj
-def deploy_bel_namespace(manager):
-    """Deploy the BEL namespace"""
-    manager.deploy_bel_namespace()
-
-
-@main.command()
 @click.option('-f', '--file', type=click.File('w'), default=sys.stdout)
 def write_tree(file):
     """Writes the BEL tree"""
     write_interpro_tree(file=file)
-
-
-@main.command()
-@click.option('-f', '--file', type=click.File('w'), default=sys.stdout)
-def write_go_mapping(file):
-    """Writes the InterPro to Gene Ontology mapping as a BEL Script"""
-    write_interpro_to_go_bel(file=file)
 
 
 if __name__ == '__main__':

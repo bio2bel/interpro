@@ -1,0 +1,6 @@
+!date: 2018/04/18 11:04:21
+!Mapping of InterPro entries to GO
+!
+InterPro:IPR013465 Thymidine phosphorylase > GO:thymidine phosphorylase activity ; GO:0009032
+InterPro:IPR013465 Thymidine phosphorylase > GO:pyrimidine nucleoside metabolic process ; GO:0006213
+InterPro:IPR013466 Thymidine phosphorylase/AMP phosphorylase > GO:transferase activity, transferring pentosyl groups ; GO:0016763

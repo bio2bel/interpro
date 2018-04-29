@@ -8,6 +8,7 @@ import unittest
 from pybel import BELGraph
 from pybel.constants import IS_A, RELATION
 from pybel.dsl import protein
+
 from tests.constants import TemporaryManagerMixin
 
 mapk1_hgnc = protein(namespace='HGNC', name='MAPK1', identifier='6871')
