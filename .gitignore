@@ -109,3 +109,4 @@ scratch/scratch.py
 *.ipynb
 
 .idea
+.pytest_cache
