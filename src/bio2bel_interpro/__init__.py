@@ -2,7 +2,7 @@
 
 from .manager import Manager
 
-__version__ = '0.1.1'
+__version__ = '0.1.2-dev'
 
 __title__ = 'bio2bel_interpro'
 __description__ = "A package for converting InterPro to BEL"
