@@ -1,5 +1,5 @@
-Bio2BEL InterPro |build| |coverage| |documentation|
-===================================================
+Bio2BEL InterPro |build| |coverage| |documentation| |zenodo|
+============================================================
 Converts the InterPro protein families, domains, and other classes to ontological relations in BEL.
 
 Installation |pypi_version| |python_versions| |pypi_license|
@@ -68,3 +68,7 @@ To enrich the proteins in a BEL Graph with their InterPro entries (families, dom
 
 .. |pypi_license| image:: https://img.shields.io/pypi/l/bio2bel_interpro.svg
     :alt: MIT License
+
+.. |zenodo| image:: https://zenodo.org/badge/98345182.svg
+    :target: https://zenodo.org/badge/latestdoi/98345182
+    :alt: Zenodo DOI
