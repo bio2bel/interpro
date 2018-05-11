@@ -4,11 +4,11 @@ import logging
 import time
 from typing import Optional
 
-from bio2bel.abstractmanager import AbstractManager
-from pybel.constants import NAMESPACE_DOMAIN_GENE
-from pybel.resources.definitions import write_namespace
 from tqdm import tqdm
 
+from bio2bel import AbstractManager
+from pybel.constants import NAMESPACE_DOMAIN_GENE
+from pybel.resources.definitions import write_namespace
 from .constants import MODULE_NAME
 from .models import Base, Entry, GoTerm, Protein, Type, entry_protein
 from .parser.entries import get_interpro_entries_df
