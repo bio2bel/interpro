@@ -10,7 +10,9 @@ use the web extra like:
 
 from bio2bel_interpro.manager import Manager
 
+manager = Manager()
+
+app = manager.get_flask_admin_app()
+
 if __name__ == '__main__':
-    manager = Manager()
-    interpro_app = manager.get_flask_admin_app()
-    interpro_app.run(debug=True, host='0.0.0.0', port=5000)
+    app.run(debug=True, host='0.0.0.0', port=5000)
