@@ -94,8 +94,8 @@ class Entry(Base):
     parent_id = Column(Integer, ForeignKey('{}.id'.format(ENTRY_TABLE_NAME)))
     children = relationship('Entry', backref=backref('parent', remote_side=[id]))
 
-    proteins = relationship(Protein, secondary=entry_protein, backref=backref('proteins'))
-    go_terms = relationship(GoTerm, secondary=entry_go, backref=backref('go_terms'))
+    proteins = relationship(Protein, secondary=entry_protein, backref=backref('entries'))
+    go_terms = relationship(GoTerm, secondary=entry_go, backref=backref('entries'))
 
     def __str__(self):
         return self.name
