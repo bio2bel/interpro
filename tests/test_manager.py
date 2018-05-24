@@ -34,10 +34,10 @@ class TestManager(TemporaryManagerMixin):
 
     def test_populated(self):
         """Tests the database was populated and can be queried"""
-        result = self.manager.get_family_by_name('Ubiquitin/SUMO-activating enzyme E1')
+        result = self.manager.get_interpro_by_name('Ubiquitin/SUMO-activating enzyme E1')
         self.assertIsNotNone(result)
 
-        child = self.manager.get_family_by_name('Ubiquitin-activating enzyme E1')
+        child = self.manager.get_interpro_by_name('Ubiquitin-activating enzyme E1')
         self.assertIsNotNone(child)
 
         self.assertEqual(result.interpro_id, 'IPR000011')

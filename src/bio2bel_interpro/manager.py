@@ -4,11 +4,13 @@ import logging
 import time
 from typing import Optional
 
+from bio2bel.namespace_manager import NamespaceManagerMixin
+from pybel import BELGraph
+from pybel.constants import NAMESPACE_DOMAIN_GENE
+from pybel.manager.models import NamespaceEntry
+from pybel.resources.definitions import write_namespace
 from tqdm import tqdm
 
-from bio2bel import AbstractManager
-from pybel.constants import NAMESPACE_DOMAIN_GENE
-from pybel.resources.definitions import write_namespace
 from .constants import MODULE_NAME
 from .models import Base, Entry, GoTerm, Protein, Type, entry_protein
 from .parser.entries import get_interpro_entries_df
@@ -41,10 +43,11 @@ def _write_bel_namespace_helper(values, file):
     )
 
 
-class Manager(AbstractManager):
+class Manager(NamespaceManagerMixin):
     """Creates a connection to database and a persistent session using SQLAlchemy"""
 
     module_name = MODULE_NAME
+    namespace_model = Entry
     flask_admin_models = [Entry, Protein, Type, GoTerm]
 
     def __init__(self, *args, **kwargs):
@@ -68,6 +71,9 @@ class Manager(AbstractManager):
         :rtype: int
         """
         return self._count_model(Entry)
+
+    def list_interpros(self):
+        return self._list_model(Entry)
 
     def count_interpro_proteins(self):
         """Counts the number of protein-interpro associations
@@ -216,7 +222,7 @@ class Manager(AbstractManager):
         self._populate_tree(path=tree_url)
         self._populate_go(path=go_mapping_path)
 
-    def get_family_by_name(self, name):
+    def get_interpro_by_name(self, name):
         """Gets an InterPro family by name, if exists.
 
         :param str name: The name to search
@@ -242,3 +248,29 @@ class Manager(AbstractManager):
         """Write an InterPro BEL namespace file."""
         values = [name for name, in self.session.query(Entry.name).all()]
         _write_bel_namespace_helper(values, file)
+
+    @staticmethod
+    def _get_identifier(model):
+        return model.interpro_id
+
+    def _create_namespace_entry_from_model(self, model, namespace):
+        return NamespaceEntry(encoding='P', name=model.name, identifier=model.interpro_id, namespace=namespace)
+
+    def to_bel(self):
+        graph = BELGraph()
+
+        interpro_namespace = self.upload_bel_namespace()
+        graph.namespace_url[interpro_namespace.keyword] = interpro_namespace.url
+
+        for entry in self.list_interpros():
+            entry_bel = entry.as_bel()
+
+            for child in entry.children:
+                graph.add_is_a(child.as_bel(), entry_bel)
+
+            for protein in entry.proteins:
+                graph.add_is_a(protein.as_bel(), entry_bel)
+
+            # for go_term in entry.go_terms:
+
+        return graph

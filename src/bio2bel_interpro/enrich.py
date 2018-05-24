@@ -18,7 +18,7 @@ def enrich_proteins(graph, connection=None):
     :param pybel.BELGraph graph: A BEL graph
     :type connection: str or bio2bel_interpro.manager.Manager
     """
-    m = Manager.ensure(connection)
+    m = Manager.ensure(connection=connection)
     m.enrich_proteins(graph)
 
 
