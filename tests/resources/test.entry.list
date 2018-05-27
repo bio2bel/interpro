@@ -1,0 +1,45 @@
+ENTRY_AC	ENTRY_TYPE	ENTRY_NAME
+IPR000008	Domain	C2 domain
+IPR000010	Domain	Cystatin domain
+IPR000014	Domain	PAS domain
+IPR000020	Domain	Anaphylatoxin/fibulin
+IPR000031	Domain	PurE domain
+IPR001840	Domain	Anaphylatoxin, complement system domain
+IPR002420	Domain	Phosphatidylinositol 3-kinase, C2 domain
+IPR013655	Domain	PAS fold-3
+IPR013656	Domain	PAS fold-4
+IPR013767	Domain	PAS fold
+IPR014020	Domain	Tensin phosphatase, C2 domain
+IPR025760	Domain	Fetuin-A-type cystatin domain
+IPR025764	Domain	Fetuin-B-type cystatin domain
+IPR027358	Domain	Kininogen-type cystatin domain
+IPR033626	Domain	Class II PurE
+IPR033747	Domain	Class I PurE
+IPR033884	Domain	Calpain C2 domain
+IPR000011	Family	Ubiquitin/SUMO-activating enzyme E1
+IPR000026	Family	Guanine-specific ribonuclease N1/T1/U2
+IPR000040	Family	Acute myeloid leukemia 1 protein (AML1)/Runt
+IPR000043	Family	Adenosylhomocysteinase-like
+IPR000053	Family	Thymidine/pyrimidine-nucleoside phosphorylase
+IPR001887	Family	Barnase
+IPR004025	Family	Fungal ribotoxin
+IPR013465	Family	Thymidine phosphorylase
+IPR013466	Family	Thymidine phosphorylase/AMP phosphorylase
+IPR016554	Family	Runt-related transcription factor RUNX
+IPR017713	Family	AMP phosphorylase
+IPR018075	Family	Ubiquitin-activating enzyme E1
+IPR018090	Family	Pyrimidine-nucleoside phosphorylase, bacterial/eukaryotic
+IPR028579	Family	Putative thymidine phosphorylase
+IPR034373	Family	Adenosylhomocysteinase
+IPR018081	Homologous_superfamily	Anaphylatoxin, complement system
+IPR017871	Conserved_site	ABC transporter, conserved site
+IPR003439	Domain	ABC transporter-like
+IPR003593	Domain	AAA+ ATPase domain
+IPR004839	Domain	Aminotransferase, class I/classII
+IPR010961	Domain	Tetrapyrrole biosynthesis, 5-aminolevulinic acid synthase
+IPR011527	Domain	ABC transporter type 1, transmembrane domain
+IPR015421	Homologous_superfamily	Pyridoxal phosphate-dependent transferase, major domain
+IPR015422	Homologous_superfamily	Pyridoxal phosphate-dependent transferase domain 1
+IPR015424	Homologous_superfamily	Pyridoxal phosphate-dependent transferase
+IPR027417	Homologous_superfamily	P-loop containing nucleoside triphosphate hydrolase
+IPR036640	Homologous_superfamily	ABC transporter type 1, transmembrane domain superfamily

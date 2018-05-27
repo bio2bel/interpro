@@ -20,6 +20,21 @@ INTERPRO_TREE_PATH = os.path.join(DATA_DIR, 'ParentChildTreeFile.txt')
 INTERPRO_PROTEIN_URL = 'ftp://ftp.ebi.ac.uk/pub/databases/interpro/protein2ipr.dat.gz'
 INTERPRO_PROTEIN_PATH = os.path.join(DATA_DIR, 'protein2ipr.dat.gz')
 
+INTERPRO_PROTEIN_COLUMNS = [
+    'uniiprot_id',
+    'interpro_id',
+    'interpro_name',
+    'xref',  # either superfamily, gene family gene scan, PFAM, TIGERFAM
+    'start',  # int
+    'end',  # int
+]
+
+CHUNKSIZE = 500000
+
+#: Data source for protein-interpro mappings
+INTERPRO_PROTEIN_HASH_URL = 'ftp://ftp.ebi.ac.uk/pub/databases/interpro/current/protein2ipr.dat.gz.md5'
+INTERPRO_PROTEIN_HASH_PATH = os.path.join(DATA_DIR, 'protein2ipr.dat.gz.md5')
+
 #: Data source for interpro-GO mappings
 INTERPRO_GO_MAPPING_URL = 'ftp://ftp.ebi.ac.uk/pub/databases/interpro/interpro2go'
 INTERPRO_GO_MAPPING_PATH = os.path.join(DATA_DIR, 'interpro2go.txt')

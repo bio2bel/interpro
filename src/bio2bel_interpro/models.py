@@ -12,18 +12,11 @@ from .constants import MODULE_NAME
 ENTRY_TABLE_NAME = '{}_entry'.format(MODULE_NAME)
 TYPE_TABLE_NAME = '{}_type'.format(MODULE_NAME)
 PROTEIN_TABLE_NAME = '{}_protein'.format(MODULE_NAME)
-ENTRY_PROTEIN_TABLE_NAME = '{}_entry_protein'.format(MODULE_NAME)
+ANNOTATION_TABLE_NAME = '{}_annotation'.format(MODULE_NAME)
 GO_TABLE_NAME = '{}_go'.format(MODULE_NAME)
 ENTRY_GO_TABLE_NAME = '{}_entry_go'.format(MODULE_NAME)
 
 Base = declarative_base()
-
-entry_protein = Table(
-    ENTRY_PROTEIN_TABLE_NAME,
-    Base.metadata,
-    Column('entry_id', Integer, ForeignKey('{}.id'.format(ENTRY_TABLE_NAME)), primary_key=True),
-    Column('protein_id', Integer, ForeignKey('{}.id'.format(PROTEIN_TABLE_NAME)), primary_key=True),
-)
 
 entry_go = Table(
     ENTRY_GO_TABLE_NAME,
@@ -34,7 +27,8 @@ entry_go = Table(
 
 
 class Type(Base):
-    """InterPro Entry Type"""
+    """InterPro Entry Type."""
+
     __tablename__ = TYPE_TABLE_NAME
 
     id = Column(Integer, primary_key=True)
@@ -45,7 +39,8 @@ class Type(Base):
 
 
 class Protein(Base):
-    """Represents proteins that are annotated to InterPro families"""
+    """Represents proteins that are annotated to InterPro families."""
+
     __tablename__ = PROTEIN_TABLE_NAME
 
     id = Column(Integer, primary_key=True)
@@ -80,7 +75,8 @@ class GoTerm(Base):
 
 
 class Entry(Base):
-    """Represents families, domains, etc. in InterPro"""
+    """Represents families, domains, etc. in InterPro."""
+
     __tablename__ = ENTRY_TABLE_NAME
 
     id = Column(Integer, primary_key=True)
@@ -94,7 +90,6 @@ class Entry(Base):
     parent_id = Column(Integer, ForeignKey('{}.id'.format(ENTRY_TABLE_NAME)))
     children = relationship('Entry', backref=backref('parent', remote_side=[id]))
 
-    proteins = relationship(Protein, secondary=entry_protein, backref=backref('entries'))
     go_terms = relationship(GoTerm, secondary=entry_go, backref=backref('entries'))
 
     def __str__(self):
@@ -110,3 +105,22 @@ class Entry(Base):
             name=str(self.name),
             identifier=str(self.interpro_id)
         )
+
+
+class Annotation(Base):
+    """Mapping of interpro to protein."""
+
+    __tablename__ = ANNOTATION_TABLE_NAME
+
+    id = Column(Integer, primary_key=True)
+
+
+    entry_id = Column(Integer, ForeignKey('{}.id'.format(ENTRY_TABLE_NAME)))
+    entry = relationship(Entry, backref=backref('annotations'))
+
+    protein_id = Column(Integer, ForeignKey('{}.id'.format(PROTEIN_TABLE_NAME)))
+    protein = relationship(Protein, backref=backref('annotations'))
+
+    xref = Column(String(255))
+    start = Column(Integer, doc='Starting position on reference sequence of annotation')
+    end = Column(Integer, doc='Ending position on reference sequence of annotation')
