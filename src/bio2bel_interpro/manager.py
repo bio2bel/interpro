@@ -4,6 +4,7 @@ import logging
 from typing import List, Optional
 
 import time
+from flask_admin.contrib.sqla import ModelView
 from pybel import BELGraph
 from pybel.constants import NAMESPACE_DOMAIN_GENE
 from pybel.manager.models import NamespaceEntry
@@ -42,12 +43,16 @@ def _write_bel_namespace_helper(values, file):
     )
 
 
+class EntryView(ModelView):
+    column_searchable_list = ['interpro_id']
+
+
 class Manager(CompathManager, NamespaceManagerMixin):
     """Creates a connection to database and a persistent session using SQLAlchemy"""
 
     module_name = MODULE_NAME
     namespace_model = Entry
-    flask_admin_models = [Entry, Protein, Type, Annotation, GoTerm]
+    flask_admin_models = [(Entry, EntryView), Protein, Type, Annotation, GoTerm]
 
     pathway_model = Entry
     pathway_model_identifier_column = Entry.interpro_id
@@ -239,7 +244,7 @@ class Manager(CompathManager, NamespaceManagerMixin):
 
         log.info('precaching interpros')
         interpros = {
-            interpro.interpro_id: interpro
+            str(interpro.interpro_id): interpro
             for interpro in self.list_interpros()
         }
 
@@ -247,18 +252,23 @@ class Manager(CompathManager, NamespaceManagerMixin):
 
         log.info('building protein models')
 
-        interpro, protein = None, None
-        current_uniprot_id = None
+        cursor_uniprot_id, protein = None, None
 
         # Assumes ordered by uniprot_id
 
+        missing = set()
+
         for chunk in tqdm(df, desc='Protein mapping chunks of {}'.format(CHUNKSIZE)):
             for _, (uniprot_id, interpro_id, xref, start, end) in tqdm(chunk.iterrows(), total=CHUNKSIZE):
-                if current_uniprot_id != uniprot_id:
+                if uniprot_id != cursor_uniprot_id:  # means new type of entry
                     protein = Protein(uniprot_id=uniprot_id)
-                    current_uniprot_id = uniprot_id
+                    cursor_uniprot_id = uniprot_id
 
-                interpro = self.get_or_create_interpro(interpro_id)
+                interpro = interpros.get(interpro_id)
+                if interpro is None:
+                    missing.add(interpro_id)
+                    continue
+
                 annotation = Annotation(
                     entry=interpro,
                     protein=protein,
@@ -272,6 +282,9 @@ class Manager(CompathManager, NamespaceManagerMixin):
             log.info('committing proteins from chunk')
             self.session.commit()
             log.info('committed proteins from chunk in %.2f seconds', time.time() - t)
+
+        for m in missing:
+            log.warning('missing %s', m)
 
     def populate(self, entries_url=None, tree_url=None, go_mapping_path=None, proteins_url=None):
         """Populate the database.
