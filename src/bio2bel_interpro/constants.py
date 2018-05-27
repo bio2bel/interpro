@@ -12,6 +12,8 @@ DEFAULT_CACHE_CONNECTION = get_connection(MODULE_NAME)
 INTERPRO_ENTRIES_URL = 'ftp://ftp.ebi.ac.uk/pub/databases/interpro/entry.list'
 INTERPRO_ENTRIES_PATH = os.path.join(DATA_DIR, 'entry.list')
 
+INTERPRO_ENTRIES_COLUMNS = ['ENTRY_AC', 'ENTRY_TYPE', 'ENTRY_NAME']
+
 #: Data source for InterPro tree
 INTERPRO_TREE_URL = 'ftp://ftp.ebi.ac.uk/pub/databases/interpro/ParentChildTreeFile.txt'
 INTERPRO_TREE_PATH = os.path.join(DATA_DIR, 'ParentChildTreeFile.txt')

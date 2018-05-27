@@ -21,8 +21,6 @@ from .parser.tree import get_interpro_tree
 
 log = logging.getLogger(__name__)
 
-COLUMNS = ['ENTRY_AC', 'ENTRY_TYPE', 'ENTRY_NAME']
-
 
 def _write_bel_namespace_helper(values, file):
     """Writes the InterPro entries namespace
@@ -132,7 +130,7 @@ class Manager(CompathManager, NamespaceManagerMixin):
 
         df = get_interpro_entries_df(url=entry_url, force_download=force_download)
 
-        for _, interpro_id, entry_type, name in tqdm(df[COLUMNS].itertuples(), desc='Entries', total=len(df.index)):
+        for _, interpro_id, entry_type, name in tqdm(df.itertuples(), desc='Entries', total=len(df.index)):
 
             family_type = self.types.get(entry_type)
 
