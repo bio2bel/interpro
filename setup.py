@@ -23,10 +23,9 @@ CLASSIFIERS = [
     'Topic :: Scientific/Engineering :: Bio-Informatics'
 ]
 INSTALL_REQUIRES = [
-    'pybel>=0.11.1',
-    'bio2bel>=0.0.12',
+    'pybel>=0.12.0,<0.13.0',
+    'bio2bel>=0.1.0',
     'compath_utils',
-    'networkx==1.11',
     'click',
     'sqlalchemy',
     'tqdm',
