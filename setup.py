@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-"""Setup.py for Bio2BEL InterPro"""
+"""Setup.py for Bio2BEL InterPro."""
 
 import codecs
 import os
@@ -9,8 +9,8 @@ import re
 import setuptools
 
 PACKAGES = setuptools.find_packages(where='src')
-KEYWORDS = ['Biological Expression Language', 'BEL', 'Systems Biology', 'Networks Biology', 'InterPro']
 META_PATH = os.path.join('src', 'bio2bel_interpro', '__init__.py')
+KEYWORDS = ['Biological Expression Language', 'BEL', 'Systems Biology', 'Networks Biology', 'InterPro']
 CLASSIFIERS = [
     'Development Status :: 4 - Beta',
     'Environment :: Console',
@@ -24,7 +24,7 @@ CLASSIFIERS = [
 ]
 INSTALL_REQUIRES = [
     'pybel>=0.12.0,<0.13.0',
-    'bio2bel>=0.1.0',
+    'bio2bel>=0.1.5',
     'compath_utils',
     'click',
     'sqlalchemy',
@@ -85,9 +85,12 @@ if __name__ == '__main__':
         maintainer=find_meta('author'),
         maintainer_email=find_meta('email'),
         license=find_meta('license'),
+        classifiers=CLASSIFIERS,
+        keywords=KEYWORDS,
         packages=PACKAGES,
         package_dir={'': 'src'},
         install_requires=INSTALL_REQUIRES,
         extras_require=EXTRAS_REQUIRE,
         entry_points=ENTRY_POINTS,
+        zip_safe=False,
     )
