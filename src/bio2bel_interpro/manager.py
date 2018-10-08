@@ -1,18 +1,20 @@
 # -*- coding: utf-8 -*-
 
+"""Manager for Bio2BEL InterPro."""
+
 import logging
-from typing import List, Optional
+from typing import List, Mapping, Optional
 
 import time
 from flask_admin.contrib.sqla import ModelView
-from pybel import BELGraph
-from pybel.constants import NAMESPACE_DOMAIN_GENE
-from pybel.manager.models import NamespaceEntry
-from pybel.resources.definitions import write_namespace
 from tqdm import tqdm
 
-from bio2bel.namespace_manager import NamespaceManagerMixin
+from bio2bel.manager.bel_manager import BELManagerMixin
+from bio2bel.manager.flask_manager import FlaskMixin
+from bio2bel.manager.namespace_manager import BELNamespaceManagerMixin
 from compath_utils import CompathManager
+from pybel import BELGraph
+from pybel.manager.models import Namespace, NamespaceEntry
 from .constants import CHUNKSIZE, MODULE_NAME
 from .models import Annotation, Base, Entry, GoTerm, Protein, Type
 from .parser.entries import get_interpro_entries_df
@@ -23,32 +25,12 @@ from .parser.tree import get_interpro_tree
 log = logging.getLogger(__name__)
 
 
-def _write_bel_namespace_helper(values, file):
-    """Writes the InterPro entries namespace
-
-    :param file file: A write-enabled file or file-like. Defaults to standard out
-    :param values: The values to write
-    """
-    write_namespace(
-        namespace_name='InterPro Protein Families',
-        namespace_keyword=MODULE_NAME.upper(),
-        namespace_domain=NAMESPACE_DOMAIN_GENE,
-        author_name='Charles Tapley Hoyt',
-        author_contact='charles.hoyt@scai.fraunhofer.de',
-        author_copyright='Creative Commons by 4.0',
-        citation_name='InterPro',
-        values=values,
-        functions='P',
-        file=file
-    )
-
-
 class EntryView(ModelView):
     column_searchable_list = ['interpro_id']
 
 
-class Manager(CompathManager, NamespaceManagerMixin):
-    """Creates a connection to database and a persistent session using SQLAlchemy"""
+class Manager(CompathManager, BELNamespaceManagerMixin, BELManagerMixin, FlaskMixin):
+    """Manager for Bio2BEL InterPro."""
 
     module_name = MODULE_NAME
     namespace_model = Entry
@@ -70,44 +52,35 @@ class Manager(CompathManager, NamespaceManagerMixin):
         return Base
 
     def is_populated(self) -> bool:
-        """Check if the database is already populated"""
+        """Check if the database is already populated."""
         return 0 < self.count_interpros()
 
     def count_interpros(self) -> int:
-        """Counts the number of InterPro entries in the database
-
-        :rtype: int
-        """
+        """Count the number of InterPro entries in the database."""
         return self._count_model(Entry)
 
     def list_interpros(self) -> List[Entry]:
+        """List the InterPro entries in the database."""
         return self._list_model(Entry)
 
     def count_annotations(self) -> int:
-        """Counts the number of protein-interpro associations
-
-        :rtype: int
-        """
+        """Count the number of protein-interpro associations."""
         return self._count_model(Annotation)
 
     def count_proteins(self) -> int:
-        """Counts the number of protein entries in the database
-
-        :rtype: int
-        """
+        """Count the number of protein entries in the database."""
         return self._count_model(Protein)
 
     def list_proteins(self) -> List[Protein]:
+        """List the proteins in the database."""
         return self._list_model(Protein)
 
     def count_go_terms(self) -> int:
+        """Count the GO terms in the database."""
         return self._count_model(GoTerm)
 
-    def summarize(self):
-        """Returns a summary dictionary over the content of the database
-
-        :rtype: dict[str,int]
-        """
+    def summarize(self) -> Mapping[str, int]:
+        """Summarize the database."""
         return dict(
             interpros=self.count_interpros(),
             annotations=self.count_annotations(),
@@ -121,22 +94,12 @@ class Manager(CompathManager, NamespaceManagerMixin):
     def get_interpro_by_interpro_id(self, interpro_id) -> Optional[Entry]:
         return self.session.query(Entry).filter(Entry.interpro_id == interpro_id).one_or_none()
 
-    def _populate_entries(self, entry_url=None, tree_url=None, force_download=False):
-        """Populates the database
-
-        :param Optional[str] entry_url: An optional URL for the InterPro entries' data
-        :param Optional[str] tree_url:
-        :param bool force_download:
-        """
-        interpro_count = self.count_interpros()
-        if interpro_count > 0:
-            log.info('proteins (%d) already populated', interpro_count)
-            return
-
+    def _populate_entries(self, entry_url: Optional[str] = None, tree_url: Optional[str] = None,
+                          force_download: bool = False) -> None:
+        """Populate the database."""
         df = get_interpro_entries_df(url=entry_url, force_download=force_download)
 
         for _, interpro_id, entry_type, name in tqdm(df.itertuples(), desc='Entries', total=len(df.index)):
-
             family_type = self.types.get(entry_type)
 
             if family_type is None:
@@ -157,8 +120,8 @@ class Manager(CompathManager, NamespaceManagerMixin):
         graph = get_interpro_tree(path=tree_url, force_download=force_download)
 
         for parent_name, child_name in tqdm(graph.edges(), desc='Building Tree', total=graph.number_of_edges()):
-            child_id = graph.node[child_name]['interpro_id']
-            parent_id = graph.node[parent_name]['interpro_id']
+            child_id = graph.nodes[child_name]['interpro_id']
+            parent_id = graph.nodes[parent_name]['interpro_id']
 
             child = self.interpros.get(child_id)
             parent = self.interpros.get(parent_id)
@@ -178,7 +141,7 @@ class Manager(CompathManager, NamespaceManagerMixin):
         self.session.commit()
         log.info('committed tree in %.2f seconds', time.time() - t)
 
-    def get_go_by_go_identifier(self, go_id) -> Optional[GoTerm]:
+    def get_go_by_go_identifier(self, go_id: str) -> Optional[GoTerm]:
         return self.session.query(GoTerm).filter(GoTerm.go_id == go_id).one_or_none()
 
     def get_or_create_interpro(self, interpro_id: str, **kwargs) -> Entry:
@@ -196,7 +159,7 @@ class Manager(CompathManager, NamespaceManagerMixin):
         self.session.add(interpro)
         return interpro
 
-    def get_or_create_go_term(self, go_id, name=None) -> GoTerm:
+    def get_or_create_go_term(self, go_id: str, name=None) -> GoTerm:
         go = self.go_terms.get(go_id)
         if go is not None:
             return go
@@ -210,7 +173,7 @@ class Manager(CompathManager, NamespaceManagerMixin):
         self.session.add(go)
         return go
 
-    def _populate_go(self, path=None):
+    def _populate_go(self, path: Optional[str] = None):
         """Populate the InterPro-GO mappings.
 
         Assumes entries are populated.
@@ -298,41 +261,31 @@ class Manager(CompathManager, NamespaceManagerMixin):
         self._populate_go(path=go_mapping_path)
         self._populate_proteins(url=proteins_url)
 
-    def get_interpro_by_name(self, name) -> Optional[Entry]:
-        """Gets an InterPro family by name, if exists.
-
-        :param str name: The name to search
-        :rtype: Optional[Family]
-        """
+    def get_interpro_by_name(self, name: str) -> Optional[Entry]:
+        """Gets an InterPro family by name, if exists."""
         return self.session.query(Entry).filter(Entry.name == name).one_or_none()
 
-    def enrich_proteins(self, graph):
-        """Find UniProt entries and annotates their InterPro entries.
-
-        :param pybel.BELGraph graph: A BEL graph
-        """
+    def enrich_proteins(self, graph: BELGraph):
+        """Find UniProt entries and annotates their InterPro entries."""
         raise NotImplementedError
 
-    def enrich_interpros(self, graph):
-        """Find InterPro entries and annotates their proteins.
-
-        :param pybel.BELGraph graph: A BEL graph
-        """
+    def enrich_interpros(self, graph: BELGraph):
+        """Find InterPro entries and annotates their proteins."""
         raise NotImplementedError
-
-    def write_bel_namespace(self, file):
-        """Write an InterPro BEL namespace file."""
-        values = [name for name, in self.session.query(Entry.name).all()]
-        _write_bel_namespace_helper(values, file)
 
     @staticmethod
-    def _get_identifier(model):
-        return model.interpro_id
+    def _get_identifier(entry: Entry) -> str:
+        return entry.interpro_id
 
-    def _create_namespace_entry_from_model(self, model, namespace):
-        return NamespaceEntry(encoding='P', name=model.name, identifier=model.interpro_id, namespace=namespace)
+    def _create_namespace_entry_from_model(self, entry: Entry, namespace: Namespace) -> NamespaceEntry:
+        return NamespaceEntry(
+            encoding='P',
+            name=entry.name,
+            identifier=entry.interpro_id,
+            namespace=namespace,
+        )
 
-    def to_bel(self):
+    def to_bel(self) -> BELGraph:
         graph = BELGraph()
 
         interpro_namespace = self.upload_bel_namespace()

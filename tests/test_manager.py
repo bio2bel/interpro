@@ -8,7 +8,6 @@ import unittest
 from pybel import BELGraph
 from pybel.constants import IS_A, RELATION
 from pybel.dsl import protein
-
 from tests.constants import TemporaryManagerMixin
 
 mapk1_hgnc = protein(namespace='HGNC', name='MAPK1', identifier='6871')
@@ -33,7 +32,7 @@ class TestManager(TemporaryManagerMixin):
     """Tests the enrichment functions of the manager are working properly"""
 
     def test_populated(self):
-        """Tests the database was populated and can be queried"""
+        """Test the database was populated and can be queried."""
         result = self.manager.get_interpro_by_name('Ubiquitin/SUMO-activating enzyme E1')
         self.assertIsNotNone(result)
 
@@ -55,15 +54,15 @@ class TestManager(TemporaryManagerMixin):
         self.manager.enrich_proteins(graph)
 
         for interpro_family_node in interpro_family_nodes:
-            self.assertTrue(graph.has_node_with_data(interpro_family_node))
-            self.assertIn(interpro_family_node, graph[mapk1_uniprot.as_tuple()])
-            v = list(graph[mapk1_uniprot.as_tuple()][interpro_family_node.as_tuple()].values())[0]
+            self.assertIn(interpro_family_node, graph)
+            self.assertIn(interpro_family_node, graph[mapk1_uniprot])
+            v = list(graph[mapk1_uniprot][interpro_family_node].values())[0]
             self.assertIn(RELATION, v)
             self.assertEqual(IS_A, v[RELATION])
 
     @unittest.skip
     def test_enrich_hgnc(self):
-        """Tests that the enrich_proteins function gets the interpro entries in the graph"""
+        """Test that the enrich_proteins function gets the interpro entries in the graph."""
         graph = BELGraph()
         graph.add_node_from_data(mapk1_hgnc)
 
@@ -73,12 +72,8 @@ class TestManager(TemporaryManagerMixin):
         self.manager.enrich_proteins(graph)
 
         for interpro_family_node in interpro_family_nodes:
-            self.assertTrue(graph.has_node_with_data(interpro_family_node))
-            self.assertIn(interpro_family_node, graph[mapk1_hgnc.as_tuple()])
-            v = list(graph[mapk1_hgnc.as_tuple()][interpro_family_node.as_tuple()].values())[0]
+            self.assertIn(interpro_family_node, graph)
+            self.assertIn(interpro_family_node, graph[mapk1_hgnc])
+            v = list(graph[mapk1_hgnc][interpro_family_node].values())[0]
             self.assertIn(RELATION, v)
             self.assertEqual(IS_A, v[RELATION])
-
-
-if __name__ == '__main__':
-    unittest.main()

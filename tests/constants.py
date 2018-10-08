@@ -22,13 +22,13 @@ class TemporaryManagerMixin(AbstractTemporaryCacheClassMixin):
     """An implementation of :class:`bio2bel.testing.AbstractTemporaryCacheClassMixin` for Bio2BEL InterPro."""
 
     Manager = Manager
+    manager: Manager
 
     @classmethod
     def populate(cls):
-        Manager.populate(
-            cls.manager,
+        cls.manager.populate(
             entries_url=test_entries_path,
             tree_url=test_tree_path,
             go_mapping_path=test_go_path,
-            proteins_url=test_proteins_path
+            proteins_url=test_proteins_path,
         )

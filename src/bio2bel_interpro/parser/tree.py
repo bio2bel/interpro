@@ -3,6 +3,7 @@
 
 import logging
 import os
+from typing import Iterable, Optional
 from urllib.request import urlretrieve
 
 import networkx as nx
@@ -19,11 +20,10 @@ __all__ = [
 log = logging.getLogger(__name__)
 
 
-def download_interpro_tree(force_download=False):
+def download_interpro_tree(force_download: bool = False) -> str:
     """Download the InterPro tree file to the data directory if it doesn't already exist.
 
-    :param bool force_download: Should the data be re-downloaded?
-    :rtype: str
+    :param force_download: Should the data be re-downloaded?
     """
     if force_download or not os.path.exists(INTERPRO_TREE_PATH):
         log.info('downloading %s to %s', INTERPRO_TREE_URL, INTERPRO_TREE_PATH)
@@ -34,10 +34,10 @@ def download_interpro_tree(force_download=False):
     return INTERPRO_TREE_PATH
 
 
-def count_front(s):
+def count_front(s: str) -> int:
     """Count the number of leading dashes on a string.
 
-    :param str s: A string
+    :param s: A string
     :rtype: int
     """
     for position, element in enumerate(s):
@@ -45,12 +45,11 @@ def count_front(s):
             return position
 
 
-def get_interpro_tree(path=None, force_download=False):
+def get_interpro_tree(path: Optional[str] = None, force_download: bool = False) -> nx.DiGraph:
     """Download and parse the InterPro tree.
 
     :param Optional[str] path: The path to the InterPro Tree file
     :param bool force_download: Should the data be re-downloaded?
-    :rtype: networkx.DiGraph
     """
     if not path:
         path = download_interpro_tree(force_download=force_download)
@@ -59,7 +58,7 @@ def get_interpro_tree(path=None, force_download=False):
         return parse_tree_helper(f)
 
 
-def parse_tree_helper(lines):
+def parse_tree_helper(lines: Iterable[str]) -> nx.DiGraph:
     """Parse the InterPro Tree from the given file.
 
     :param iter[str] lines: A readable file or file-like

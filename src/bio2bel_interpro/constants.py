@@ -1,12 +1,13 @@
 # -*- coding: utf-8 -*-
 
+"""Constants for Bio2BEL InterPro."""
+
 import os
 
-from bio2bel import get_connection, get_data_dir
+from bio2bel import get_data_dir
 
 MODULE_NAME = 'interpro'
 DATA_DIR = get_data_dir(MODULE_NAME)
-DEFAULT_CACHE_CONNECTION = get_connection(MODULE_NAME)
 
 #: Data source for InterPro entries
 INTERPRO_ENTRIES_URL = 'ftp://ftp.ebi.ac.uk/pub/databases/interpro/entry.list'
