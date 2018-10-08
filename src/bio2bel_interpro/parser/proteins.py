@@ -13,7 +13,7 @@ from ..constants import (
 __all__ = [
     'download_interpro_proteins_mapping',
     'download_interpro_proteins_mapping_hash',
-    'get_proteins_df',
+    'get_proteins_chunks',
 ]
 
 log = logging.getLogger(__name__)
@@ -22,7 +22,7 @@ download_interpro_proteins_mapping = make_downloader(INTERPRO_PROTEIN_URL, INTER
 download_interpro_proteins_mapping_hash = make_downloader(INTERPRO_PROTEIN_HASH_URL, INTERPRO_PROTEIN_HASH_PATH)
 
 
-def get_proteins_df(url=None, cache=True, force_download=False, chunksize=None):
+def get_proteins_chunks(url=None, cache=True, force_download=False, chunksize=None):
     if url is None and cache:
         url = download_interpro_proteins_mapping(force_download=force_download)
 

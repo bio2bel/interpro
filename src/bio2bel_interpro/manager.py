@@ -19,7 +19,7 @@ from .constants import CHUNKSIZE, MODULE_NAME
 from .models import Annotation, Base, Entry, GoTerm, Protein, Type
 from .parser.entries import get_interpro_entries_df
 from .parser.interpro_to_go import get_go_mappings
-from .parser.proteins import get_proteins_df
+from .parser.proteins import get_proteins_chunks
 from .parser.tree import get_interpro_tree
 
 log = logging.getLogger(__name__)
@@ -94,6 +94,50 @@ class Manager(CompathManager, BELNamespaceManagerMixin, BELManagerMixin, FlaskMi
     def get_interpro_by_interpro_id(self, interpro_id) -> Optional[Entry]:
         return self.session.query(Entry).filter(Entry.interpro_id == interpro_id).one_or_none()
 
+    def get_go_by_go_identifier(self, go_id: str) -> Optional[GoTerm]:
+        return self.session.query(GoTerm).filter(GoTerm.go_id == go_id).one_or_none()
+
+    def get_or_create_interpro(self, interpro_id: str, **kwargs) -> Entry:
+        interpro = self.interpros.get(interpro_id)
+        if interpro is not None:
+            return interpro
+
+        interpro = self.get_interpro_by_interpro_id(interpro_id)
+        if interpro is not None:
+            self.interpros[interpro_id] = interpro
+            return interpro
+
+        interpro = self.interpros[interpro_id] = Entry(interpro_id=interpro_id, **kwargs)
+
+        self.session.add(interpro)
+        return interpro
+
+    def get_or_create_go_term(self, go_id: str, name=None) -> GoTerm:
+        go = self.go_terms.get(go_id)
+        if go is not None:
+            return go
+
+        go = self.get_go_by_go_identifier(go_id)
+        if go is not None:
+            self.go_terms[go_id] = go
+            return go
+
+        go = self.go_terms[go_id] = GoTerm(go_id=go_id, name=name)
+        self.session.add(go)
+        return go
+
+    def populate(self, entries_url=None, tree_url=None, go_mapping_path=None, proteins_url=None):
+        """Populate the database.
+
+        :param Optional[str] entries_url:
+        :param Optional[str] tree_url:
+        :param Optional[str] go_mapping_path:
+        :param Optional[str] proteins_url:
+        """
+        self._populate_entries(entry_url=entries_url, tree_url=tree_url)
+        self._populate_go(path=go_mapping_path)
+        self._populate_proteins(url=proteins_url)
+
     def _populate_entries(self, entry_url: Optional[str] = None, tree_url: Optional[str] = None,
                           force_download: bool = False) -> None:
         """Populate the database."""
@@ -141,38 +185,6 @@ class Manager(CompathManager, BELNamespaceManagerMixin, BELManagerMixin, FlaskMi
         self.session.commit()
         log.info('committed tree in %.2f seconds', time.time() - t)
 
-    def get_go_by_go_identifier(self, go_id: str) -> Optional[GoTerm]:
-        return self.session.query(GoTerm).filter(GoTerm.go_id == go_id).one_or_none()
-
-    def get_or_create_interpro(self, interpro_id: str, **kwargs) -> Entry:
-        interpro = self.interpros.get(interpro_id)
-        if interpro is not None:
-            return interpro
-
-        interpro = self.get_interpro_by_interpro_id(interpro_id)
-        if interpro is not None:
-            self.interpros[interpro_id] = interpro
-            return interpro
-
-        interpro = self.interpros[interpro_id] = Entry(interpro_id=interpro_id, **kwargs)
-
-        self.session.add(interpro)
-        return interpro
-
-    def get_or_create_go_term(self, go_id: str, name=None) -> GoTerm:
-        go = self.go_terms.get(go_id)
-        if go is not None:
-            return go
-
-        go = self.get_go_by_go_identifier(go_id)
-        if go is not None:
-            self.go_terms[go_id] = go
-            return go
-
-        go = self.go_terms[go_id] = GoTerm(go_id=go_id, name=name)
-        self.session.add(go)
-        return go
-
     def _populate_go(self, path: Optional[str] = None):
         """Populate the InterPro-GO mappings.
 
@@ -199,15 +211,13 @@ class Manager(CompathManager, BELNamespaceManagerMixin, BELManagerMixin, FlaskMi
         self.session.commit()
         log.info('committed go terms in %.2f seconds', time.time() - t)
 
-    def _populate_proteins(self, url=None, chunksize=None):
+    def _populate_proteins(self, url: Optional[str] = None, chunksize: Optional[int] = None) -> None:
         """Populate the InterPro-protein mappings."""
         chunksize = chunksize or CHUNKSIZE
 
-        df = get_proteins_df(url=url, chunksize=chunksize)
-
         log.info('precaching interpros')
         interpros = {
-            str(interpro.interpro_id): interpro
+            interpro.interpro_id: interpro
             for interpro in self.list_interpros()
         }
 
@@ -221,8 +231,9 @@ class Manager(CompathManager, BELNamespaceManagerMixin, BELManagerMixin, FlaskMi
 
         missing = set()
 
-        for chunk in tqdm(df, desc='Protein mapping chunks of {}'.format(CHUNKSIZE)):
-            for _, (uniprot_id, interpro_id, xref, start, end) in tqdm(chunk.iterrows(), total=CHUNKSIZE):
+        chunks = get_proteins_chunks(url=url, chunksize=chunksize)
+        for chunk in tqdm(chunks, desc=f'Protein mapping chunks of {chunksize}'):
+            for _, (uniprot_id, interpro_id, xref, start, end) in tqdm(chunk.iterrows(), total=chunksize):
                 if uniprot_id != cursor_uniprot_id:  # means new type of entry
                     protein = Protein(uniprot_id=uniprot_id)
                     cursor_uniprot_id = uniprot_id
@@ -248,18 +259,6 @@ class Manager(CompathManager, BELNamespaceManagerMixin, BELManagerMixin, FlaskMi
 
         for m in missing:
             log.warning('missing %s', m)
-
-    def populate(self, entries_url=None, tree_url=None, go_mapping_path=None, proteins_url=None):
-        """Populate the database.
-
-        :param Optional[str] entries_url:
-        :param Optional[str] tree_url:
-        :param Optional[str] go_mapping_path:
-        :param Optional[str] proteins_url:
-        """
-        self._populate_entries(entry_url=entries_url, tree_url=tree_url)
-        self._populate_go(path=go_mapping_path)
-        self._populate_proteins(url=proteins_url)
 
     def get_interpro_by_name(self, name: str) -> Optional[Entry]:
         """Gets an InterPro family by name, if exists."""
