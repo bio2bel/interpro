@@ -32,13 +32,21 @@ class EntryView(ModelView):
 class Manager(CompathManager, BELNamespaceManagerMixin, BELManagerMixin, FlaskMixin):
     """Manager for Bio2BEL InterPro."""
 
+    _base = Base
     module_name = MODULE_NAME
-    namespace_model = Entry
+
     flask_admin_models = [(Entry, EntryView), Protein, Type, Annotation, GoTerm]
 
     pathway_model = Entry
     pathway_model_identifier_column = Entry.interpro_id
     protein_model = Protein
+
+    namespace_model = Entry
+    identifiers_recommended = 'InterPro'
+    identifiers_pattern = '^IPR\d{6}$'
+    identifiers_miriam = 'MIR:00000011'
+    identifiers_namespace = 'interpro'
+    identifiers_url = 'http://identifiers.org/interpro/'
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -46,10 +54,6 @@ class Manager(CompathManager, BELNamespaceManagerMixin, BELManagerMixin, FlaskMi
         self.types = {}
         self.interpros = {}
         self.go_terms = {}
-
-    @property
-    def _base(self):
-        return Base
 
     def is_populated(self) -> bool:
         """Check if the database is already populated."""
@@ -85,13 +89,13 @@ class Manager(CompathManager, BELNamespaceManagerMixin, BELManagerMixin, FlaskMi
             interpros=self.count_interpros(),
             annotations=self.count_annotations(),
             proteins=self.count_proteins(),
-            go_terms=self.count_go_terms()
+            go_terms=self.count_go_terms(),
         )
 
-    def get_type_by_name(self, name) -> Optional[Type]:
+    def get_type_by_name(self, name: str) -> Optional[Type]:
         return self.session.query(Type).filter(Type.name == name).one_or_none()
 
-    def get_interpro_by_interpro_id(self, interpro_id) -> Optional[Entry]:
+    def get_interpro_by_interpro_id(self, interpro_id: str) -> Optional[Entry]:
         return self.session.query(Entry).filter(Entry.interpro_id == interpro_id).one_or_none()
 
     def get_go_by_go_identifier(self, go_id: str) -> Optional[GoTerm]:
@@ -126,7 +130,14 @@ class Manager(CompathManager, BELNamespaceManagerMixin, BELManagerMixin, FlaskMi
         self.session.add(go)
         return go
 
-    def populate(self, entries_url=None, tree_url=None, go_mapping_path=None, proteins_url=None):
+    def populate(
+            self,
+            entries_url: Optional[str] = None,
+            tree_url: Optional[str] = None,
+            go_mapping_path: Optional[str] = None,
+            populate_proteins: bool = False,
+            proteins_url: Optional[str] = None
+    ) -> None:
         """Populate the database.
 
         :param Optional[str] entries_url:
@@ -136,7 +147,8 @@ class Manager(CompathManager, BELNamespaceManagerMixin, BELManagerMixin, FlaskMi
         """
         self._populate_entries(entry_url=entries_url, tree_url=tree_url)
         self._populate_go(path=go_mapping_path)
-        self._populate_proteins(url=proteins_url)
+        if populate_proteins:
+            self._populate_proteins(url=proteins_url)
 
     def _populate_entries(self, entry_url: Optional[str] = None, tree_url: Optional[str] = None,
                           force_download: bool = False) -> None:

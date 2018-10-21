@@ -2,27 +2,27 @@
 
 """SQLAlchemy database models for Bio2BEL InterPro."""
 
-from pybel.dsl import protein
 from sqlalchemy import Column, ForeignKey, Integer, String, Table
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import backref, relationship
 
+import pybel.dsl
 from .constants import MODULE_NAME
 
-ENTRY_TABLE_NAME = '{}_entry'.format(MODULE_NAME)
-TYPE_TABLE_NAME = '{}_type'.format(MODULE_NAME)
-PROTEIN_TABLE_NAME = '{}_protein'.format(MODULE_NAME)
-ANNOTATION_TABLE_NAME = '{}_annotation'.format(MODULE_NAME)
-GO_TABLE_NAME = '{}_go'.format(MODULE_NAME)
-ENTRY_GO_TABLE_NAME = '{}_entry_go'.format(MODULE_NAME)
+ENTRY_TABLE_NAME = f'{MODULE_NAME}_entry'
+TYPE_TABLE_NAME = f'{MODULE_NAME}_type'
+PROTEIN_TABLE_NAME = f'{MODULE_NAME}_protein'
+ANNOTATION_TABLE_NAME = f'{MODULE_NAME}_annotation'
+GO_TABLE_NAME = f'{MODULE_NAME}_go'
+ENTRY_GO_TABLE_NAME = f'{MODULE_NAME}_entry_go'
 
 Base = declarative_base()
 
 entry_go = Table(
     ENTRY_GO_TABLE_NAME,
     Base.metadata,
-    Column('entry_id', Integer, ForeignKey('{}.id'.format(ENTRY_TABLE_NAME)), primary_key=True),
-    Column('go_id', Integer, ForeignKey('{}.id'.format(GO_TABLE_NAME)), primary_key=True),
+    Column('entry_id', Integer, ForeignKey(f'{ENTRY_TABLE_NAME}.id'), primary_key=True),
+    Column('go_id', Integer, ForeignKey(f'{GO_TABLE_NAME}.id'), primary_key=True),
 )
 
 
@@ -50,13 +50,11 @@ class Protein(Base):
     def __repr__(self):
         return self.uniprot_id
 
-    def as_bel(self):
-        """
-        :rtype: pybel.dsl.protein
-        """
-        return protein(
-            namespace='UNIPROT',
-            identifier=str(self.uniprot_id)
+    def as_bel(self) -> pybel.dsl.protein:
+        """Return this protein as a PyBEL node."""
+        return pybel.dsl.protein(
+            namespace='uniprot',
+            identifier=str(self.uniprot_id),
         )
 
 
@@ -84,10 +82,10 @@ class Entry(Base):
     interpro_id = Column(String(255), unique=True, index=True, nullable=False, doc='The InterPro identifier')
     name = Column(String(255), nullable=False, unique=True, index=True, doc='The InterPro entry name')
 
-    type_id = Column(Integer, ForeignKey('{}.id'.format(TYPE_TABLE_NAME)))
+    type_id = Column(Integer, ForeignKey(f'{TYPE_TABLE_NAME}.id'))
     type = relationship(Type, backref=backref('entries'))
 
-    parent_id = Column(Integer, ForeignKey('{}.id'.format(ENTRY_TABLE_NAME)))
+    parent_id = Column(Integer, ForeignKey(f'{ENTRY_TABLE_NAME}.id'))
     children = relationship('Entry', backref=backref('parent', remote_side=[id]))
 
     go_terms = relationship(GoTerm, secondary=entry_go, backref=backref('entries'))
@@ -95,30 +93,26 @@ class Entry(Base):
     def __str__(self):
         return self.name
 
-    def as_bel(self):
-        """Returns this entry as a PyBEL node data dictionary
-
-        :rtype: pybel.dsl.protein
-        """
-        return protein(
-            namespace='INTERPRO',
+    def as_bel(self) -> pybel.dsl.Protein:
+        """Return this InterPro entry as a PyBEL node."""
+        return pybel.dsl.protein(
+            namespace='interpro',
             name=str(self.name),
             identifier=str(self.interpro_id)
         )
 
 
 class Annotation(Base):
-    """Mapping of interpro to protein."""
+    """Mapping of InterPro to protein."""
 
     __tablename__ = ANNOTATION_TABLE_NAME
 
     id = Column(Integer, primary_key=True)
 
-
-    entry_id = Column(Integer, ForeignKey('{}.id'.format(ENTRY_TABLE_NAME)))
+    entry_id = Column(Integer, ForeignKey(f'{Entry.__tablename__}.id'))
     entry = relationship(Entry, backref=backref('annotations'))
 
-    protein_id = Column(Integer, ForeignKey('{}.id'.format(PROTEIN_TABLE_NAME)))
+    protein_id = Column(Integer, ForeignKey(f'{Protein.__tablename__}.id'))
     protein = relationship(Protein, backref=backref('annotations'))
 
     xref = Column(String(255))
