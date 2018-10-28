@@ -4,8 +4,8 @@
 
 import unittest
 
-from bio2bel_interpro.parser.interpro_to_go import get_go_mappings
-from tests.constants import test_go_path
+from bio2bel_interpro.parser.interpro_to_go import get_interpro_go_mappings
+from tests.constants import TEST_INTERPRO_GO_MAPPINGS_PATH
 
 
 class TestTreeParser(unittest.TestCase):
@@ -14,4 +14,8 @@ class TestTreeParser(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         """Set up this class with GO mappings."""
-        cls.df = get_go_mappings(path=test_go_path)
+        cls.interpro_go_mapping = get_interpro_go_mappings(path=TEST_INTERPRO_GO_MAPPINGS_PATH)
+
+    def test_length(self):
+        """Test the number of mappings."""
+        self.assertEqual(3, len(self.interpro_go_mapping))

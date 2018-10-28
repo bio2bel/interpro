@@ -18,7 +18,7 @@ from pybel.manager.models import Namespace, NamespaceEntry
 from .constants import CHUNKSIZE, MODULE_NAME
 from .models import Annotation, Base, Entry, GoTerm, Protein, Type
 from .parser.entries import get_interpro_entries_df
-from .parser.interpro_to_go import get_go_mappings
+from .parser.interpro_to_go import get_interpro_go_mappings
 from .parser.proteins import get_proteins_chunks
 from .parser.tree import get_interpro_tree
 
@@ -207,7 +207,7 @@ class Manager(CompathManager, BELNamespaceManagerMixin, BELManagerMixin, FlaskMi
             log.info('GO terms (%d) already populated', go_count)
             return
 
-        go_mappings = get_go_mappings(path=path)
+        go_mappings = get_interpro_go_mappings(path=path)
 
         for interpro_id, go_id, go_name in tqdm(go_mappings, desc='Mappings to GO'):
             interpro = self.interpros.get(interpro_id)

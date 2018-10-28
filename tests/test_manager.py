@@ -9,10 +9,10 @@ import unittest
 from pybel import BELGraph
 from pybel.constants import IS_A, RELATION
 from pybel.dsl import protein
-from tests.constants import TemporaryManagerMixin
+from tests.cases import TemporaryCacheClassMixin
 
-mapk1_hgnc = protein(namespace='HGNC', name='MAPK1', identifier='6871')
-mapk1_uniprot = protein(namespace='UNIPROT', name='MK01_HUMAN', identifier='P28482')
+mapk1_hgnc = protein(namespace='hgnc', name='MAPK1', identifier='6871')
+mapk1_uniprot = protein(namespace='uniprot', name='MK01_HUMAN', identifier='P28482')
 
 interpro_identifiers = [
     'IPR011009',  # . Kinase-like_dom.
@@ -24,12 +24,15 @@ interpro_identifiers = [
 ]
 
 interpro_family_nodes = [
-    protein(namespace='INTERPRO', identifier=identifier)
+    protein(
+        namespace='interpro',
+        identifier=identifier,
+    )
     for identifier in interpro_identifiers
 ]
 
 
-class TestManager(TemporaryManagerMixin):
+class TestManager(TemporaryCacheClassMixin):
     """Tests the enrichment functions of the manager are working properly."""
 
     def test_populated(self):

@@ -5,7 +5,7 @@
 import unittest
 
 from bio2bel_interpro.parser.tree import parse_tree_helper
-from tests.constants import test_tree_path
+from tests.constants import TEST_TREE_PATH
 
 
 class TestTreeParser(unittest.TestCase):
@@ -14,7 +14,7 @@ class TestTreeParser(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         """Save a copy of the parsed tree for reuse by each of the test methods."""
-        with open(test_tree_path) as file:
+        with open(TEST_TREE_PATH) as file:
             cls.graph = parse_tree_helper(file)
 
     def test_names_in_graph(self):
