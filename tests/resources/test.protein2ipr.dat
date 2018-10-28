@@ -1,0 +1,15 @@
+A0A000	IPR004839	Aminotransferase, class I/classII	PF00155	41	381
+A0A000	IPR010961	Tetrapyrrole biosynthesis, 5-aminolevulinic acid synthase	TIGR01821	12	391
+A0A000	IPR015421	Pyridoxal phosphate-dependent transferase, major domain	G3DSA:3.40.640.10	53	288
+A0A000	IPR015422	Pyridoxal phosphate-dependent transferase domain 1	G3DSA:3.90.1150.10	13	52
+A0A000	IPR015422	Pyridoxal phosphate-dependent transferase domain 1	G3DSA:3.90.1150.10	289	378
+A0A000	IPR015424	Pyridoxal phosphate-dependent transferase	SSF53383	9	389
+A0A001	IPR003439	ABC transporter-like	PF00005	361	504
+A0A001	IPR003439	ABC transporter-like	PS50893	344	573
+A0A001	IPR003593	AAA+ ATPase domain	SM00382	369	550
+A0A001	IPR011527	ABC transporter type 1, transmembrane domain	PF00664	20	276
+A0A001	IPR011527	ABC transporter type 1, transmembrane domain	PS50929	17	289
+A0A001	IPR017871	ABC transporter, conserved site	PS00211	478	492
+A0A001	IPR027417	P-loop containing nucleoside triphosphate hydrolase	SSF52540	342	565
+A0A001	IPR036640	ABC transporter type 1, transmembrane domain superfamily	G3DSA:1.20.1560.10	2	302
+A0A001	IPR036640	ABC transporter type 1, transmembrane domain superfamily	SSF90123	3	300

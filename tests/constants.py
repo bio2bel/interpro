@@ -31,4 +31,5 @@ class TemporaryManagerMixin(AbstractTemporaryCacheClassMixin):
             tree_url=test_tree_path,
             go_mapping_path=test_go_path,
             proteins_url=test_proteins_path,
+            populate_proteins=True,
         )
