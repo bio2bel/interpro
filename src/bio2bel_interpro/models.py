@@ -47,6 +47,8 @@ class Protein(Base):
 
     uniprot_id = Column(String(32), nullable=False, index=True, doc='UniProt identifier')
 
+    bel_encoding = 'GRP'
+
     def __repr__(self):
         return self.uniprot_id
 
@@ -89,6 +91,8 @@ class Entry(Base):
     children = relationship('Entry', backref=backref('parent', remote_side=[id]))
 
     go_terms = relationship(GoTerm, secondary=entry_go, backref=backref('entries'))
+
+    bel_encoding = 'P'
 
     def __str__(self):
         return self.name
