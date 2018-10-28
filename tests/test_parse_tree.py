@@ -65,6 +65,7 @@ class TestTreeParser(unittest.TestCase):
         self.assertEqual(33, self.graph.number_of_nodes())
 
     def test_c2_number_children(self):
+        """Test the C2 domain has the right number of children."""
         self.assertEqual(3, len(self.graph['C2 domain']), msg='Edges: {}'.format(list(self.graph['C2 domain'])))
 
     def test_1(self):
@@ -78,10 +79,12 @@ class TestTreeParser(unittest.TestCase):
         self.assertEqual(0, len(self.graph['Tensin phosphatase, C2 domain']))
 
     def test_5(self):
+        """Test that Calpain C2 domain is a child of the C2 domain."""
         self.assertIn('Calpain C2 domain', self.graph['C2 domain'])
         self.assertEqual(0, len(self.graph['Calpain C2 domain']))
 
     def test_3(self):
+        """Test that Phosphatidylinositol 3-kinase, C2 domain has no children."""
         self.assertEqual(0, len(self.graph['Phosphatidylinositol 3-kinase, C2 domain']))
 
     def test_2(self):

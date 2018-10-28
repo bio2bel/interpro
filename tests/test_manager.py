@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 
-"""This module tests that proteins in a given BELGraph can be annotated to their families. This file does NOT
-test the existence of the InterPro hierarchy"""
+"""This module tests that proteins in a given BELGraph can be annotated to their families.
+
+This file does NOT test the existence of the InterPro hierarchy."""
 
 import unittest
 
@@ -29,7 +30,7 @@ interpro_family_nodes = [
 
 
 class TestManager(TemporaryManagerMixin):
-    """Tests the enrichment functions of the manager are working properly"""
+    """Tests the enrichment functions of the manager are working properly."""
 
     def test_populated(self):
         """Test the database was populated and can be queried."""
@@ -45,6 +46,7 @@ class TestManager(TemporaryManagerMixin):
 
     @unittest.skip
     def test_enrich_uniprot(self):
+        """Test enriching UniProt entries."""
         graph = BELGraph()
         graph.add_node_from_data(mapk1_uniprot)
 

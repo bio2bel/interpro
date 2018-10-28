@@ -9,8 +9,9 @@ from tests.constants import test_go_path
 
 
 class TestTreeParser(unittest.TestCase):
-    """Methods to test that the parser for the InterPro tree works properly"""
+    """Methods to test that the parser for the InterPro tree works properly."""
 
     @classmethod
     def setUpClass(cls):
+        """Set up this class with GO mappings."""
         cls.df = get_go_mappings(path=test_go_path)
