@@ -24,6 +24,7 @@ CLASSIFIERS = [
     'Topic :: Scientific/Engineering :: Bio-Informatics'
 ]
 INSTALL_REQUIRES = [
+    'networkx>=2.1',
     'pybel>=0.12.0,<0.13.0',
     'bio2bel>=0.1.5',
     'compath_utils',
