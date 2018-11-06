@@ -3,10 +3,12 @@
 """Manager for Bio2BEL InterPro."""
 
 import logging
+from operator import itemgetter
 from typing import List, Mapping, Optional
 
 import time
 from flask_admin.contrib.sqla import ModelView
+from itertools import groupby
 from tqdm import tqdm
 
 from bio2bel.manager.bel_manager import BELManagerMixin
@@ -237,32 +239,32 @@ class Manager(CompathManager, BELNamespaceManagerMixin, BELManagerMixin, FlaskMi
 
         log.info('building protein models')
 
-        cursor_uniprot_id, protein = None, None
-
         # Assumes ordered by uniprot_id
 
         missing = set()
 
         chunks = get_proteins_chunks(url=url, chunksize=chunksize)
         for chunk in tqdm(chunks, desc=f'Protein mapping chunks of {chunksize}'):
-            for _, (uniprot_id, interpro_id, xref, start, end) in tqdm(chunk.iterrows(), total=chunksize):
-                if uniprot_id != cursor_uniprot_id:  # means new type of entry
-                    protein = Protein(uniprot_id=uniprot_id)
-                    cursor_uniprot_id = uniprot_id
 
-                interpro = interpros.get(interpro_id)
-                if interpro is None:
-                    missing.add(interpro_id)
-                    continue
+            it = (x for _, x in chunk.iterrows())
+            grouped = groupby(it, key=itemgetter(0))
 
-                annotation = Annotation(
-                    entry=interpro,
-                    protein=protein,
-                    xref=xref,
-                    start=start,
-                    end=end,
-                )
-                self.session.add(annotation)
+            for uniprot_id, lines in tqdm(grouped):
+                protein = Protein(uniprot_id=uniprot_id)
+                for (_, interpro_id, xref, start, end) in lines:
+                    interpro = interpros.get(interpro_id)
+                    if interpro is None:
+                        missing.add(interpro_id)
+                        continue
+
+                    annotation = Annotation(
+                        entry=interpro,
+                        protein=protein,
+                        xref=xref,
+                        start=start,
+                        end=end,
+                    )
+                    self.session.add(annotation)
 
             t = time.time()
             log.info('committing proteins from chunk')

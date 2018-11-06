@@ -3,10 +3,10 @@
 import logging
 
 import pandas
-from bio2bel import make_downloader
 
+from bio2bel import make_downloader
 from ..constants import (
-    CHUNKSIZE, INTERPRO_PROTEIN_HASH_PATH, INTERPRO_PROTEIN_HASH_URL, INTERPRO_PROTEIN_PATH,
+    CHUNKSIZE, INTERPRO_PROTEIN_COLUMNS, INTERPRO_PROTEIN_HASH_PATH, INTERPRO_PROTEIN_HASH_URL, INTERPRO_PROTEIN_PATH,
     INTERPRO_PROTEIN_URL,
 )
 
@@ -22,14 +22,15 @@ download_interpro_proteins_mapping = make_downloader(INTERPRO_PROTEIN_URL, INTER
 download_interpro_proteins_mapping_hash = make_downloader(INTERPRO_PROTEIN_HASH_URL, INTERPRO_PROTEIN_HASH_PATH)
 
 
-def get_proteins_chunks(url=None, cache=True, force_download=False, chunksize=None):
+def get_proteins_chunks(url=None, cache=True, force_download=False, chunksize=None, compression='gzip'):
     if url is None and cache:
         url = download_interpro_proteins_mapping(force_download=force_download)
 
     return pandas.read_csv(
         url or INTERPRO_PROTEIN_URL,
         sep='\t',
-        compression='gzip',
+        compression=compression,
         usecols=[0, 1, 3, 4, 5],
+        names=INTERPRO_PROTEIN_COLUMNS,
         chunksize=(chunksize or CHUNKSIZE)
     )

@@ -24,7 +24,7 @@ INTERPRO_PROTEIN_URL = 'ftp://ftp.ebi.ac.uk/pub/databases/interpro/protein2ipr.d
 INTERPRO_PROTEIN_PATH = os.path.join(DATA_DIR, 'protein2ipr.dat.gz')
 
 INTERPRO_PROTEIN_COLUMNS = [
-    'uniiprot_id',
+    'uniprot_id',
     'interpro_id',
     'interpro_name',
     'xref',  # either superfamily, gene family gene scan, PFAM, TIGERFAM
