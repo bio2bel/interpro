@@ -21,12 +21,12 @@ CLASSIFIERS = [
     'Programming Language :: Python',
     'Programming Language :: Python :: 3.6',
     'Programming Language :: Python :: 3.7',
-    'Topic :: Scientific/Engineering :: Bio-Informatics'
+    'Topic :: Scientific/Engineering :: Bio-Informatics',
 ]
 INSTALL_REQUIRES = [
     'networkx>=2.1',
     'pybel>=0.12.0,<0.13.0',
-    'bio2bel>=0.1.5',
+    'bio2bel>=0.2.0,<0.3.0',
     'compath_utils',
     'click',
     'sqlalchemy',
