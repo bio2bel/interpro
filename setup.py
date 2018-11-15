@@ -39,6 +39,8 @@ EXTRAS_REQUIRE = {
         'flask-admin',
     ],
     'docs': [
+        'flask',
+        'flask-admin',
         'sphinx',
         'sphinx-rtd-theme',
         'sphinx-click',
