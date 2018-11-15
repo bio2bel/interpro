@@ -34,7 +34,15 @@ INSTALL_REQUIRES = [
     'pandas',
 ]
 EXTRAS_REQUIRE = {
-    'web': ['flask', 'flask-admin'],
+    'web': [
+        'flask',
+        'flask-admin',
+    ],
+    'docs': [
+        'sphinx',
+        'sphinx-rtd-theme',
+        'sphinx-click',
+    ],
 }
 ENTRY_POINTS = {
     'bio2bel': [
