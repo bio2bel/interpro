@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+"""Utilities for the InterPro tree."""
+
 import logging
 import os
 from typing import Iterable, Optional
@@ -34,11 +36,7 @@ def download_interpro_tree(force_download: bool = False) -> str:
 
 
 def count_front(s: str) -> int:
-    """Count the number of leading dashes on a string.
-
-    :param s: A string
-    :rtype: int
-    """
+    """Count the number of leading dashes on a string."""
     for position, element in enumerate(s):
         if element != '-':
             return position
@@ -47,8 +45,8 @@ def count_front(s: str) -> int:
 def get_interpro_tree(path: Optional[str] = None, force_download: bool = False) -> nx.DiGraph:
     """Download and parse the InterPro tree.
 
-    :param Optional[str] path: The path to the InterPro Tree file
-    :param bool force_download: Should the data be re-downloaded?
+    :param path: The path to the InterPro Tree file
+    :param force_download: Should the data be re-downloaded?
     """
     if not path:
         path = download_interpro_tree(force_download=force_download)
@@ -60,11 +58,10 @@ def get_interpro_tree(path: Optional[str] = None, force_download: bool = False) 
 def parse_tree_helper(lines: Iterable[str]) -> nx.DiGraph:
     """Parse the InterPro Tree from the given file.
 
-    :param iter[str] lines: A readable file or file-like
-    :rtype: networkx.DiGraph
+    :param lines: A readable file or file-like
     """
     graph = nx.DiGraph()
-    previous_depth, previous_id, previous_name = 0, None, None
+    previous_depth, previous_name = 0, None
     stack = [previous_name]
 
     for line in tqdm(lines, desc='Parsing Tree'):
@@ -89,6 +86,6 @@ def parse_tree_helper(lines: Iterable[str]) -> nx.DiGraph:
             graph.add_node(name, interpro_id=interpro_id, parent=parent, name=name)
             graph.add_edge(parent, name)
 
-        previous_depth, previous_id, previous_name = depth, interpro_id, name
+        previous_depth, previous_name = depth, name
 
     return graph

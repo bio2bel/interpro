@@ -2,7 +2,8 @@
 
 """This module tests that proteins in a given BELGraph can be annotated to their families.
 
-This file does NOT test the existence of the InterPro hierarchy."""
+This file does NOT test the existence of the InterPro hierarchy.
+"""
 
 import unittest
 

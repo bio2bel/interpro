@@ -4,16 +4,20 @@
 
 from bio2bel.testing import AbstractTemporaryCacheClassMixin
 from bio2bel_interpro import Manager
-from tests.constants import TEST_ENTRIES_PATH, TEST_INTERPRO_GO_MAPPINGS_PATH, TEST_INTERPRO_PROTEIN_MAPPINGS_PATH, TEST_TREE_PATH
+from tests.constants import (
+    TEST_ENTRIES_PATH, TEST_INTERPRO_GO_MAPPINGS_PATH, TEST_INTERPRO_PROTEIN_MAPPINGS_PATH, TEST_TREE_PATH,
+)
 
 
 class TemporaryCacheClassMixin(AbstractTemporaryCacheClassMixin):
     """An implementation of :class:`bio2bel.testing.AbstractTemporaryCacheClassMixin` for Bio2BEL InterPro."""
 
     Manager = Manager
+    manager: Manager
 
     @classmethod
     def populate(cls):
+        """Populate the database with test data."""
         cls.manager.populate(
             entries_url=TEST_ENTRIES_PATH,
             tree_url=TEST_TREE_PATH,

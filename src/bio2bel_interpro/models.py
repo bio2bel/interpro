@@ -30,11 +30,11 @@ class Type(Base):
     """InterPro Entry Type."""
 
     __tablename__ = TYPE_TABLE_NAME
-
     id = Column(Integer, primary_key=True)
+
     name = Column(String(255), nullable=False, unique=True, index=True, doc='The InterPro entry type')
 
-    def __str__(self):
+    def __str__(self):  # noqa: D105
         return self.name
 
 
@@ -42,14 +42,13 @@ class Protein(Base):
     """Represents proteins that are annotated to InterPro families."""
 
     __tablename__ = PROTEIN_TABLE_NAME
-
     id = Column(Integer, primary_key=True)
 
     uniprot_id = Column(String(32), nullable=False, index=True, doc='UniProt identifier')
 
     bel_encoding = 'GRP'
 
-    def __repr__(self):
+    def __repr__(self):  # noqa: D105
         return self.uniprot_id
 
     def as_bel(self) -> pybel.dsl.protein:
@@ -64,13 +63,12 @@ class GoTerm(Base):
     """Represents a GO term."""
 
     __tablename__ = GO_TABLE_NAME
-
     id = Column(Integer, primary_key=True)
 
     go_id = Column(String(255), unique=True, index=True, nullable=False, doc='Gene Ontology identifier')
     name = Column(String(255), unique=True, index=True, nullable=False, doc='Label')
 
-    def __repr__(self):
+    def __repr__(self):  # noqa: D105
         return self.go_id
 
 
@@ -78,7 +76,6 @@ class Entry(Base):
     """Represents families, domains, etc. in InterPro."""
 
     __tablename__ = ENTRY_TABLE_NAME
-
     id = Column(Integer, primary_key=True)
 
     interpro_id = Column(String(255), unique=True, index=True, nullable=False, doc='The InterPro identifier')
@@ -94,7 +91,7 @@ class Entry(Base):
 
     bel_encoding = 'P'
 
-    def __str__(self):
+    def __str__(self):  # noqa: D105
         return self.name
 
     def as_bel(self) -> pybel.dsl.Protein:
@@ -110,7 +107,6 @@ class Annotation(Base):
     """Mapping of InterPro to protein."""
 
     __tablename__ = ANNOTATION_TABLE_NAME
-
     id = Column(Integer, primary_key=True)
 
     entry_id = Column(Integer, ForeignKey(f'{Entry.__tablename__}.id'))

@@ -19,7 +19,6 @@ class TestTreeParser(unittest.TestCase):
 
     def test_names_in_graph(self):
         """Test that all names are nodes in graph."""
-
         self.assertEqual(
             {
                 'C2 domain',
@@ -88,18 +87,22 @@ class TestTreeParser(unittest.TestCase):
         self.assertEqual(0, len(self.graph['Phosphatidylinositol 3-kinase, C2 domain']))
 
     def test_2(self):
+        """Test the descendants of Ubiquitin/SUMO-activating enzyme E1."""
         self.assertEqual(1, len(self.graph['Ubiquitin/SUMO-activating enzyme E1']))
         self.assertIn('Ubiquitin-activating enzyme E1', self.graph['Ubiquitin/SUMO-activating enzyme E1'])
 
     def test_6(self):
+        """Test the descendants of Anaphylatoxin/fibulin."""
         self.assertEqual(1, len(self.graph['Anaphylatoxin/fibulin']))
         self.assertIn('Anaphylatoxin, complement system', self.graph['Anaphylatoxin/fibulin'])
 
     def test_7(self):
+        """Test the descendants of the Anaphylatoxin, complement system."""
         self.assertEqual(1, len(self.graph['Anaphylatoxin, complement system']))
         self.assertIn('Anaphylatoxin, complement system domain', self.graph['Anaphylatoxin, complement system'])
 
     def test_8(self):
+        """Test the descendants of the Thymidine phosphorylase/AMP phosphorylase."""
         self.assertEqual(2, len(self.graph['Thymidine phosphorylase/AMP phosphorylase']))
         self.assertIn('AMP phosphorylase', self.graph['Thymidine phosphorylase/AMP phosphorylase'])
         self.assertIn('Putative thymidine phosphorylase', self.graph['Thymidine phosphorylase/AMP phosphorylase'])

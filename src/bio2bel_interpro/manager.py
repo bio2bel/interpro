@@ -3,12 +3,12 @@
 """Manager for Bio2BEL InterPro."""
 
 import logging
+import time
+from itertools import groupby
 from operator import itemgetter
 from typing import List, Mapping, Optional
 
-import time
 from flask_admin.contrib.sqla import ModelView
-from itertools import groupby
 from tqdm import tqdm
 
 from bio2bel.manager.bel_manager import BELManagerMixin
@@ -19,15 +19,19 @@ from pybel import BELGraph
 from pybel.manager.models import Namespace, NamespaceEntry
 from .constants import CHUNKSIZE, MODULE_NAME
 from .models import Annotation, Base, Entry, GoTerm, Protein, Type
-from .parser.entries import get_interpro_entries_df
+from .parser.entries import get_entries_df
 from .parser.interpro_to_go import get_interpro_go_mappings
 from .parser.proteins import get_proteins_chunks
 from .parser.tree import get_interpro_tree
+
+__all__ = ['Manager']
 
 log = logging.getLogger(__name__)
 
 
 class EntryView(ModelView):
+    """A view for InterPro Entries."""
+
     column_searchable_list = ['interpro_id']
 
 
@@ -45,12 +49,12 @@ class Manager(CompathManager, BELNamespaceManagerMixin, BELManagerMixin, FlaskMi
 
     namespace_model = Entry
     identifiers_recommended = 'InterPro'
-    identifiers_pattern = '^IPR\d{6}$'
+    identifiers_pattern = r'^IPR\d{6}$'
     identifiers_miriam = 'MIR:00000011'
     identifiers_namespace = 'interpro'
     identifiers_url = 'http://identifiers.org/interpro/'
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs):  # noqa: D105, D107
         super().__init__(*args, **kwargs)
 
         self.types = {}
@@ -95,15 +99,19 @@ class Manager(CompathManager, BELNamespaceManagerMixin, BELManagerMixin, FlaskMi
         )
 
     def get_type_by_name(self, name: str) -> Optional[Type]:
+        """Get an InterPro entry type by its name if it exists."""
         return self.session.query(Type).filter(Type.name == name).one_or_none()
 
     def get_interpro_by_interpro_id(self, interpro_id: str) -> Optional[Entry]:
+        """Get a InterPro entry by its identifier if it exists."""
         return self.session.query(Entry).filter(Entry.interpro_id == interpro_id).one_or_none()
 
     def get_go_by_go_identifier(self, go_id: str) -> Optional[GoTerm]:
+        """Get a GO term by its identifier if it exists."""
         return self.session.query(GoTerm).filter(GoTerm.go_id == go_id).one_or_none()
 
     def get_or_create_interpro(self, interpro_id: str, **kwargs) -> Entry:
+        """Get an InterPro entry by its identifier if it exists, or create one."""
         interpro = self.interpros.get(interpro_id)
         if interpro is not None:
             return interpro
@@ -119,6 +127,7 @@ class Manager(CompathManager, BELNamespaceManagerMixin, BELManagerMixin, FlaskMi
         return interpro
 
     def get_or_create_go_term(self, go_id: str, name=None) -> GoTerm:
+        """Get a GO term by its identifier if it exists, or create one."""
         go = self.go_terms.get(go_id)
         if go is not None:
             return go
@@ -155,7 +164,7 @@ class Manager(CompathManager, BELNamespaceManagerMixin, BELManagerMixin, FlaskMi
     def _populate_entries(self, entry_url: Optional[str] = None, tree_url: Optional[str] = None,
                           force_download: bool = False) -> None:
         """Populate the database."""
-        df = get_interpro_entries_df(url=entry_url, force_download=force_download)
+        df = get_entries_df(url=entry_url, force_download=force_download)
 
         for _, interpro_id, entry_type, name in tqdm(df.itertuples(), desc='Entries', total=len(df.index)):
             family_type = self.types.get(entry_type)
@@ -275,7 +284,7 @@ class Manager(CompathManager, BELNamespaceManagerMixin, BELManagerMixin, FlaskMi
             log.warning('missing %s', m)
 
     def get_interpro_by_name(self, name: str) -> Optional[Entry]:
-        """Gets an InterPro family by name, if exists."""
+        """Get an InterPro family by name, if exists."""
         return self.session.query(Entry).filter(Entry.name == name).one_or_none()
 
     def enrich_proteins(self, graph: BELGraph):
@@ -299,6 +308,7 @@ class Manager(CompathManager, BELNamespaceManagerMixin, BELManagerMixin, FlaskMi
         )
 
     def to_bel(self) -> BELGraph:
+        """Get the InterPro hierarchy and annotations as BEL."""
         graph = BELGraph()
 
         interpro_namespace = self.upload_bel_namespace()

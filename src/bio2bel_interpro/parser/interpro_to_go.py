@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+"""Utilities for InterPro - GO mappings."""
+
 import logging
 from typing import List, Tuple
 
@@ -17,6 +19,7 @@ download_interpro_go_mapping = make_downloader(INTERPRO_GO_MAPPING_URL, INTERPRO
 
 
 def get_interpro_go_mappings(path=None, cache=True, force_download=False) -> List[Tuple[str, str, str]]:
+    """Get mappings from InterPro to GO."""
     if path is None and cache:
         path = download_interpro_go_mapping(force_download=force_download)
 

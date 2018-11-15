@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
 
-"""Run this script with :code:`python3 -m bio2bel_interpro`."""
+"""Command line interface for Bio2BEL InterPro.
+
+Run this script with :code:`python3 -m bio2bel_interpro`.
+"""
 
 from .manager import Manager
 

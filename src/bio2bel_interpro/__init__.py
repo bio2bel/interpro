@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
-from .manager import Manager
+"""Bio2BEL InterPro."""
+
+from .manager import Manager  # noqa: F401
 
 __version__ = '0.1.2-dev'
 
