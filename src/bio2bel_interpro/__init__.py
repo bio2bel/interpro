@@ -4,7 +4,7 @@
 
 from .manager import Manager  # noqa: F401
 
-__version__ = '0.2.0'
+__version__ = '0.2.1-dev'
 
 __title__ = 'bio2bel_interpro'
 __description__ = "A package for converting InterPro to BEL"
