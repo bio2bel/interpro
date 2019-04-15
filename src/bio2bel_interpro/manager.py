@@ -18,7 +18,7 @@ from compath_utils import CompathManager
 from pybel import BELGraph
 from pybel.manager.models import Namespace, NamespaceEntry
 from .constants import CHUNKSIZE, MODULE_NAME
-from .models import Annotation, Base, Entry, GoTerm, Protein, Type
+from .models import Annotation, Base, Entry, GoTerm, Protein, Type, entry_go
 from .parser.entries import get_entries_df
 from .parser.interpro_to_go import get_interpro_go_mappings
 from .parser.proteins import get_proteins_chunks
@@ -36,13 +36,14 @@ class EntryView(ModelView):
 
 
 class Manager(CompathManager, BELNamespaceManagerMixin, BELManagerMixin, FlaskMixin):
-    """Manager for Bio2BEL InterPro."""
+    """Protein-family and protein-domain memberships."""
 
     _base = Base
     module_name = MODULE_NAME
 
     flask_admin_models = [(Entry, EntryView), Protein, Type, Annotation, GoTerm]
 
+    edge_model = [entry_go, Annotation]
     pathway_model = Entry
     pathway_model_identifier_column = Entry.interpro_id
     protein_model = Protein
