@@ -8,7 +8,6 @@ from itertools import groupby
 from operator import itemgetter
 from typing import List, Mapping, Optional
 
-from flask_admin.contrib.sqla import ModelView
 from tqdm import tqdm
 
 from bio2bel.manager.bel_manager import BELManagerMixin
@@ -29,19 +28,13 @@ __all__ = ['Manager']
 log = logging.getLogger(__name__)
 
 
-class EntryView(ModelView):
-    """A view for InterPro Entries."""
-
-    column_searchable_list = ['interpro_id']
-
-
 class Manager(CompathManager, BELNamespaceManagerMixin, BELManagerMixin, FlaskMixin):
     """Protein-family and protein-domain memberships."""
 
     _base = Base
     module_name = MODULE_NAME
 
-    flask_admin_models = [(Entry, EntryView), Protein, Type, Annotation, GoTerm]
+    flask_admin_models = [Entry, Protein, Type, Annotation, GoTerm]
 
     edge_model = [entry_go, Annotation]
     pathway_model = Entry
